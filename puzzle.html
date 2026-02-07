@@ -98,7 +98,7 @@ html, body {
   width: var(--cell-size); height: var(--cell-size);
   opacity: 0; border: none; outline: none;
   font-size: 16px; /* prevent iOS zoom */
-  pointer-events: none; z-index: 5;
+  z-index: 5;
   caret-color: transparent;
 }
 
@@ -613,12 +613,27 @@ function initSolver(puzzle) {
     initCreator();
   };
 
-  // Hidden input
+  // Hidden input — dual-path strategy for desktop + Android IME compatibility
   const hiddenInput = document.getElementById('hidden-input');
-  hiddenInput.addEventListener('beforeinput', onBeforeInput);
-  // Prevent default behavior that could interfere
-  hiddenInput.addEventListener('input', (e) => {
-    hiddenInput.value = '';
+  let isComposing = false;
+
+  hiddenInput.addEventListener('compositionstart', () => { isComposing = true; });
+  hiddenInput.addEventListener('compositionend', () => {
+    isComposing = false;
+    // Process whatever ended up in the input
+    processInputValue(hiddenInput);
+  });
+
+  hiddenInput.addEventListener('beforeinput', (e) => {
+    if (e.inputType === 'deleteContentBackward' || e.inputType === 'deleteContentForward') {
+      e.preventDefault();
+      handleBackspace();
+    }
+  });
+
+  hiddenInput.addEventListener('input', () => {
+    if (isComposing) return; // wait for compositionend
+    processInputValue(hiddenInput);
   });
 
   document.getElementById('solver').classList.add('active');
@@ -735,59 +750,63 @@ function focusInput() {
   inp.focus({ preventScroll: true });
 }
 
-function onBeforeInput(e) {
-  e.preventDefault();
+function fillCell(ch) {
   const { puzzle, selectedCell, direction, clueMap } = solverState;
   if (selectedCell < 0) return;
 
-  if (e.inputType === 'deleteContentBackward' || e.inputType === 'deleteContentForward') {
-    // Backspace
-    const cm = clueMap.get(selectedCell);
-    const entry = cm && cm[direction];
-    const letterEl = solverState.cellElements[selectedCell].querySelector('.letter');
-
-    if (letterEl && letterEl.textContent) {
-      // Clear current cell
-      letterEl.textContent = '';
-      puzzle.fill.delete(selectedCell);
-    } else if (entry) {
-      // Move back
-      const pos = entry.cells.indexOf(selectedCell);
-      if (pos > 0) {
-        const prevCell = entry.cells[pos - 1];
-        selectCell(prevCell);
-        const prevLetter = solverState.cellElements[prevCell].querySelector('.letter');
-        if (prevLetter) {
-          prevLetter.textContent = '';
-          puzzle.fill.delete(prevCell);
-        }
-      }
-    }
-    scheduleHashUpdate();
-    return;
+  const letterEl = solverState.cellElements[selectedCell].querySelector('.letter');
+  if (letterEl) {
+    letterEl.textContent = ch;
+    puzzle.fill.set(selectedCell, ch);
   }
 
-  if (e.inputType === 'insertText' && e.data) {
-    const ch = e.data.toUpperCase();
-    if (/^[A-Z]$/.test(ch)) {
-      // Fill cell
-      const letterEl = solverState.cellElements[selectedCell].querySelector('.letter');
-      if (letterEl) {
-        letterEl.textContent = ch;
-        puzzle.fill.set(selectedCell, ch);
-      }
-
-      // Advance to next cell in word
-      const cm = clueMap.get(selectedCell);
-      const entry = cm && cm[direction];
-      if (entry) {
-        const pos = entry.cells.indexOf(selectedCell);
-        if (pos < entry.cells.length - 1) {
-          selectCell(entry.cells[pos + 1]);
-        }
-      }
-      scheduleHashUpdate();
+  // Advance to next cell in word
+  const cm = clueMap.get(selectedCell);
+  const entry = cm && cm[direction];
+  if (entry) {
+    const pos = entry.cells.indexOf(selectedCell);
+    if (pos < entry.cells.length - 1) {
+      selectCell(entry.cells[pos + 1]);
     }
+  }
+  scheduleHashUpdate();
+}
+
+function handleBackspace() {
+  const { puzzle, selectedCell, direction, clueMap } = solverState;
+  if (selectedCell < 0) return;
+
+  const cm = clueMap.get(selectedCell);
+  const entry = cm && cm[direction];
+  const letterEl = solverState.cellElements[selectedCell].querySelector('.letter');
+
+  if (letterEl && letterEl.textContent) {
+    // Clear current cell
+    letterEl.textContent = '';
+    puzzle.fill.delete(selectedCell);
+  } else if (entry) {
+    // Move back
+    const pos = entry.cells.indexOf(selectedCell);
+    if (pos > 0) {
+      const prevCell = entry.cells[pos - 1];
+      selectCell(prevCell);
+      const prevLetter = solverState.cellElements[prevCell].querySelector('.letter');
+      if (prevLetter) {
+        prevLetter.textContent = '';
+        puzzle.fill.delete(prevCell);
+      }
+    }
+  }
+  scheduleHashUpdate();
+}
+
+function processInputValue(inp) {
+  const val = inp.value;
+  inp.value = '';
+  if (!val) return;
+  const ch = val.slice(-1).toUpperCase();
+  if (/^[A-Z]$/.test(ch)) {
+    fillCell(ch);
   }
 }
 
@@ -848,30 +867,10 @@ document.addEventListener('keydown', (e) => {
     return;
   }
 
-  // Letter input handled by beforeinput on the hidden input
-  // But also handle backspace for desktop
+  // Backspace for desktop
   if (e.key === 'Backspace') {
     e.preventDefault();
-    const cm = clueMap.get(selectedCell);
-    const entry = cm && cm[direction];
-    const letterEl = solverState.cellElements[selectedCell].querySelector('.letter');
-
-    if (letterEl && letterEl.textContent) {
-      letterEl.textContent = '';
-      puzzle.fill.delete(selectedCell);
-    } else if (entry) {
-      const pos = entry.cells.indexOf(selectedCell);
-      if (pos > 0) {
-        const prevCell = entry.cells[pos - 1];
-        selectCell(prevCell);
-        const prevLetter = solverState.cellElements[prevCell].querySelector('.letter');
-        if (prevLetter) {
-          prevLetter.textContent = '';
-          puzzle.fill.delete(prevCell);
-        }
-      }
-    }
-    scheduleHashUpdate();
+    handleBackspace();
   }
 });
 
