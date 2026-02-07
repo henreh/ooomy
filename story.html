@@ -1,0 +1,3986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FML II: A retrospective</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        /* =====================================================
+           CSS CUSTOM PROPERTIES (matching index.html)
+           ===================================================== */
+        :root {
+            --bg: #000000;
+            --fg: #fafafa;
+            --accent: #f0b375;
+            --accent2: #f0c575;
+            --accent3: #f0cb75;
+            --muted: rgba(250, 250, 250, 0.5);
+            --border: #1e1e1e;
+            --card-bg: #101010;
+            --hover-bg: rgba(30, 30, 30, 0.067);
+            --success: #22c55e;
+            --danger: #ef4444;
+
+            --font-main: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            --font-mono: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+
+            --space-xs: 0.25rem;
+            --space-sm: 0.5rem;
+            --space-md: 1rem;
+            --space-lg: 2rem;
+            --space-xl: 4rem;
+            --space-2xl: 8rem;
+
+            --text-xs: 0.75rem;
+            --text-sm: 0.875rem;
+            --text-base: 1rem;
+            --text-lg: 1.25rem;
+            --text-xl: 1.5rem;
+            --text-2xl: 2rem;
+            --text-3xl: 3rem;
+            --text-4xl: 4rem;
+            --text-5xl: 6rem;
+            --text-6xl: 8rem;
+        }
+
+        /* =====================================================
+           RESET & BASE
+           ===================================================== */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            font-size: 16px;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background: var(--bg);
+            color: var(--fg);
+            line-height: 1.6;
+            font-weight: 300;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4 {
+            font-weight: 300;
+            letter-spacing: -0.04em;
+            line-height: 1;
+        }
+
+        a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .mono { font-family: var(--font-mono); }
+        .muted { color: var(--muted); }
+        .accent { color: var(--accent); }
+
+        /* =====================================================
+           PROGRESS NAV
+           ===================================================== */
+        .progress-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--border);
+            transform: translateY(-100%);
+            transition: transform 0.3s ease;
+            padding: 0 var(--space-md);
+        }
+
+        .progress-nav.visible {
+            transform: translateY(0);
+        }
+
+        .progress-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            height: 48px;
+            gap: var(--space-sm);
+        }
+
+        .progress-label {
+            font-size: var(--text-xs);
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            white-space: nowrap;
+            min-width: 60px;
+        }
+
+        .progress-dots {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .progress-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--border);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            padding: 0;
+        }
+
+        .progress-dot:hover {
+            background: var(--muted);
+            transform: scale(1.3);
+        }
+
+        .progress-dot.active {
+            background: var(--accent);
+            transform: scale(1.4);
+        }
+
+        .progress-dot.visited {
+            background: rgba(240, 179, 117, 0.4);
+        }
+
+        .progress-bar-track {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--border);
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--accent);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .nav-back {
+            font-size: var(--text-xs);
+            color: var(--muted);
+            text-decoration: none;
+            letter-spacing: 0.05em;
+        }
+
+        .nav-back:hover {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        /* =====================================================
+           PROLOGUE / HERO
+           ===================================================== */
+        #prologue {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: var(--space-xl) var(--space-md);
+            position: relative;
+            overflow: hidden;
+        }
+
+        #prologue::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 30%, rgba(240, 179, 117, 0.08) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 70%, rgba(240, 203, 117, 0.05) 0%, transparent 50%);
+            animation: heroGlow 20s ease-in-out infinite;
+        }
+
+        @keyframes heroGlow {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(180deg); }
+        }
+
+        .prologue-content {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .story-title {
+            font-size: clamp(var(--text-4xl), 15vw, var(--text-6xl));
+            font-weight: 300;
+            letter-spacing: -0.06em;
+            line-height: 0.84;
+            margin-bottom: var(--space-lg);
+        }
+
+        .story-subtitle {
+            font-size: clamp(var(--text-lg), 3vw, var(--text-2xl));
+            color: var(--muted);
+            margin-bottom: var(--space-xl);
+            max-width: 600px;
+        }
+
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--space-md);
+            margin: var(--space-xl) 0;
+        }
+
+        .hero-stat {
+            border: 1px dotted var(--border);
+            padding: var(--space-md);
+            text-align: center;
+        }
+
+        .hero-stat-number {
+            font-family: var(--font-mono);
+            font-size: clamp(var(--text-3xl), 8vw, var(--text-5xl));
+            font-weight: 300;
+            letter-spacing: -0.04em;
+            line-height: 1;
+            color: var(--fg);
+        }
+
+        .hero-stat-label {
+            font-size: var(--text-xs);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--muted);
+            margin-top: var(--space-xs);
+        }
+
+        /* =====================================================
+           RACE CHART (STICKY)
+           ===================================================== */
+        #race-wrapper {
+            position: relative;
+        }
+
+        .race-sticky {
+            position: sticky;
+            top: 48px;
+            height: 35vh;
+            min-height: 250px;
+            background: var(--bg);
+            z-index: 10;
+            border-bottom: 1px dotted var(--border);
+            padding: var(--space-sm) var(--space-md);
+        }
+
+        .race-sticky svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .race-sticky text {
+            font-family: var(--font-mono);
+            fill: var(--muted);
+        }
+
+        .race-line {
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            transition: opacity 0.4s ease;
+        }
+
+        .race-line.faded {
+            opacity: 0.1;
+        }
+
+        .race-dot {
+            transition: opacity 0.4s ease;
+        }
+
+        .race-dot.faded {
+            opacity: 0.1;
+        }
+
+        .lead-change-marker {
+            transition: opacity 0.6s ease;
+        }
+
+        .race-round-indicator {
+            stroke: var(--accent);
+            stroke-width: 1;
+            stroke-dasharray: 4, 4;
+            opacity: 0.5;
+        }
+
+        .race-label {
+            font-size: 10px;
+            font-family: var(--font-mono);
+            fill: var(--muted);
+            transition: opacity 0.4s ease;
+        }
+
+        .race-label.highlight {
+            fill: var(--fg);
+            font-weight: 500;
+        }
+
+        /* =====================================================
+           CHAPTERS
+           ===================================================== */
+        .chapter {
+            padding: var(--space-xl) var(--space-md);
+            min-height: 60vh;
+            border-bottom: 1px dotted var(--border);
+        }
+
+        .chapter-inner {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .chapter-header {
+            margin-bottom: var(--space-lg);
+        }
+
+        .chapter-round-num {
+            font-family: var(--font-mono);
+            font-size: var(--text-xs);
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            margin-bottom: var(--space-xs);
+        }
+
+        .chapter-title {
+            font-size: clamp(var(--text-2xl), 5vw, var(--text-3xl));
+            font-weight: 300;
+            letter-spacing: -0.04em;
+            line-height: 1.1;
+            margin-bottom: var(--space-sm);
+        }
+
+        .chapter-theme {
+            font-size: var(--text-sm);
+            color: var(--muted);
+            font-style: italic;
+        }
+
+        .chapter-winner {
+            display: flex;
+            align-items: baseline;
+            gap: var(--space-sm);
+            padding: var(--space-md) 0;
+            border-top: 1px dotted var(--border);
+            border-bottom: 1px dotted var(--border);
+            margin-bottom: var(--space-lg);
+        }
+
+        .winner-label {
+            font-size: var(--text-xs);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--muted);
+        }
+
+        .winner-name {
+            font-size: var(--text-xl);
+            color: var(--accent);
+            font-weight: 400;
+        }
+
+        .winner-score {
+            font-family: var(--font-mono);
+            font-size: var(--text-lg);
+            color: var(--fg);
+        }
+
+        .winner-song {
+            font-size: var(--text-sm);
+            color: var(--muted);
+            margin-left: auto;
+            text-align: right;
+            max-width: 250px;
+        }
+
+        .chapter-narrative {
+            font-size: var(--text-base);
+            line-height: 1.8;
+            color: rgba(250, 250, 250, 0.85);
+            margin-bottom: var(--space-lg);
+        }
+
+        .chapter-narrative p {
+            margin-bottom: var(--space-md);
+        }
+
+        .data-callout {
+            font-family: var(--font-mono);
+            font-size: var(--text-sm);
+            color: var(--accent);
+            background: rgba(240, 179, 117, 0.05);
+            border: 1px dotted rgba(240, 179, 117, 0.2);
+            padding: var(--space-sm) var(--space-md);
+            margin: var(--space-md) 0;
+            display: inline-block;
+        }
+
+        /* Comment Spotlights */
+        .comment-spotlight {
+            border-left: 2px solid var(--accent);
+            padding: var(--space-md) var(--space-lg);
+            margin: var(--space-lg) 0;
+            background: rgba(240, 179, 117, 0.03);
+        }
+
+        .comment-text {
+            font-size: var(--text-base);
+            color: rgba(250, 250, 250, 0.8);
+            font-style: italic;
+            line-height: 1.7;
+            margin-bottom: var(--space-sm);
+        }
+
+        .comment-attr {
+            font-size: var(--text-xs);
+            color: var(--muted);
+            font-family: var(--font-mono);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Fun Fact Chips */
+        .fun-fact-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-xs);
+            margin-top: var(--space-md);
+        }
+
+        .fun-fact-chip {
+            font-size: var(--text-xs);
+            font-family: var(--font-mono);
+            letter-spacing: 0.02em;
+            padding: 3px 10px;
+            border: 1px dotted rgba(240, 179, 117, 0.3);
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        /* Round Awards */
+        .round-awards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-sm);
+            margin-top: var(--space-md);
+        }
+
+        .round-award {
+            padding: var(--space-sm) var(--space-md);
+            border: 1px dotted var(--border);
+            background: var(--card-bg);
+            flex: 1 1 220px;
+            min-width: 220px;
+        }
+
+        .round-award-label {
+            font-size: var(--text-xs);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--accent);
+            margin-bottom: 2px;
+        }
+
+        .round-award-winner {
+            font-size: var(--text-base);
+            font-weight: 400;
+            color: var(--fg);
+        }
+
+        .round-award-caption {
+            font-size: var(--text-xs);
+            font-family: var(--font-mono);
+            color: var(--muted);
+            margin-top: 2px;
+        }
+
+        /* Micro Viz — Body Count Chart etc. */
+        .micro-viz {
+            margin-top: var(--space-md);
+            border: 1px dotted var(--border);
+            background: var(--card-bg);
+            padding: var(--space-md);
+        }
+
+        .micro-viz-title {
+            font-size: var(--text-xs);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--accent);
+            margin-bottom: var(--space-sm);
+        }
+
+        .micro-viz-row {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            padding: 3px 0;
+            font-family: var(--font-mono);
+            font-size: var(--text-xs);
+        }
+
+        .micro-viz-label {
+            min-width: 140px;
+            max-width: 140px;
+            color: var(--muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .micro-viz-bar-track {
+            flex: 1;
+            height: 14px;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .micro-viz-bar {
+            height: 100%;
+            background: var(--accent);
+            opacity: 0.6;
+            min-width: 0;
+            transition: width 0.6s ease;
+        }
+
+        .micro-viz-value {
+            color: var(--fg);
+            white-space: nowrap;
+            padding-left: var(--space-xs);
+            min-width: 30px;
+        }
+
+        .micro-viz-note {
+            color: var(--muted);
+            font-style: italic;
+        }
+
+        /* Data Insight */
+        .data-insight {
+            font-family: var(--font-mono);
+            font-size: var(--text-sm);
+            font-style: italic;
+            color: rgba(250, 250, 250, 0.55);
+            line-height: 1.7;
+            margin: var(--space-md) 0;
+        }
+
+        /* Scorecard */
+        .scorecard {
+            margin: var(--space-lg) 0;
+            height: 100px;
+            position: relative;
+        }
+
+        .scorecard svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .scorecard-label {
+            font-family: var(--font-mono);
+            font-size: var(--text-xs);
+            color: var(--muted);
+            margin-bottom: var(--space-xs);
+        }
+
+        /* Lead Change Callout */
+        .lead-change-callout {
+            background: rgba(240, 179, 117, 0.08);
+            border: 1px solid rgba(240, 179, 117, 0.25);
+            padding: var(--space-md);
+            margin: var(--space-md) 0;
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .lead-change-icon {
+            font-size: var(--text-2xl);
+            color: var(--accent);
+            font-family: var(--font-mono);
+        }
+
+        .lead-change-text {
+            font-size: var(--text-sm);
+            color: var(--fg);
+        }
+
+        .lead-change-text strong {
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        /* =====================================================
+           EPILOGUE
+           ===================================================== */
+        #epilogue {
+            padding: var(--space-2xl) var(--space-md);
+        }
+
+        .epilogue-inner {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .epilogue-title {
+            font-size: clamp(var(--text-3xl), 8vw, var(--text-5xl));
+            font-weight: 300;
+            letter-spacing: -0.06em;
+            margin-bottom: var(--space-xl);
+        }
+
+        .final-standings {
+            margin: var(--space-xl) 0;
+        }
+
+        .standing-row {
+            display: flex;
+            align-items: baseline;
+            gap: var(--space-md);
+            padding: var(--space-sm) 0;
+            border-bottom: 1px dotted var(--border);
+        }
+
+        .standing-rank {
+            font-family: var(--font-mono);
+            font-size: var(--text-xs);
+            color: var(--muted);
+            min-width: 30px;
+        }
+
+        .standing-name {
+            font-size: var(--text-lg);
+            flex: 1;
+        }
+
+        .standing-name.champion {
+            color: var(--accent);
+            font-weight: 400;
+        }
+
+        .standing-pts {
+            font-family: var(--font-mono);
+            font-size: var(--text-sm);
+            color: var(--muted);
+        }
+
+        .standing-row a {
+            color: inherit;
+            text-decoration: none;
+            display: flex;
+            align-items: baseline;
+            gap: var(--space-md);
+            flex: 1;
+        }
+
+        .standing-link {
+            font-size: var(--text-xs);
+            font-family: var(--font-mono);
+            color: var(--accent);
+            opacity: 0;
+            transition: opacity 0.3s;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .standing-row:hover .standing-link {
+            opacity: 1;
+        }
+
+        .superlatives-heading {
+            font-size: clamp(var(--text-2xl), 5vw, var(--text-3xl));
+            font-weight: 300;
+            letter-spacing: -0.04em;
+            margin-top: var(--space-2xl);
+            margin-bottom: var(--space-lg);
+        }
+
+        .superlatives-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: var(--space-md);
+        }
+
+        .superlative-card {
+            padding: var(--space-lg);
+            border: 1px dotted var(--border);
+            background: var(--card-bg);
+        }
+
+        .superlative-title {
+            font-size: var(--text-xs);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--accent);
+            margin-bottom: var(--space-sm);
+        }
+
+        .superlative-winner {
+            font-size: var(--text-xl);
+            font-weight: 400;
+            color: var(--fg);
+            margin-bottom: var(--space-xs);
+        }
+
+        .superlative-stat {
+            font-family: var(--font-mono);
+            font-size: var(--text-sm);
+            color: var(--muted);
+            margin-bottom: var(--space-sm);
+        }
+
+        .superlative-quip {
+            font-size: var(--text-sm);
+            font-style: italic;
+            color: rgba(250, 250, 250, 0.5);
+            line-height: 1.6;
+        }
+
+        .final-race-chart {
+            height: 40vh;
+            min-height: 300px;
+            margin: var(--space-xl) 0;
+        }
+
+        .final-race-chart svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* =====================================================
+           FOOTER
+           ===================================================== */
+        footer {
+            padding: var(--space-xl) var(--space-md);
+            text-align: center;
+            border-top: 1px dotted var(--border);
+        }
+
+        footer p {
+            font-size: var(--text-sm);
+            color: var(--muted);
+        }
+
+        /* =====================================================
+           INTERSTITIAL ANALYTICS SECTIONS
+           ===================================================== */
+        .interstitial {
+            padding: var(--space-xl) var(--space-md);
+            min-height: 60vh;
+            border-bottom: 1px dotted var(--border);
+            background: rgba(16, 16, 16, 0.5);
+        }
+
+        .interstitial-inner {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .interstitial-title {
+            font-size: clamp(var(--text-2xl), 5vw, var(--text-3xl));
+            font-weight: 300;
+            letter-spacing: -0.04em;
+            margin-bottom: var(--space-lg);
+        }
+
+        .interstitial-subtitle {
+            font-size: var(--text-sm);
+            color: var(--muted);
+            margin-bottom: var(--space-xl);
+            max-width: 600px;
+        }
+
+        /* --- Awards Grid (ported from index) --- */
+        .awards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--space-lg);
+        }
+
+        .award-card {
+            background: var(--card-bg);
+            border: 1px dotted var(--border);
+            border-radius: 2px;
+            padding: var(--space-xl);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .award-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent), var(--accent3));
+        }
+
+        .award-category {
+            font-size: var(--text-xs);
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: var(--space-sm);
+        }
+
+        .award-title {
+            font-size: var(--text-2xl);
+            font-weight: 400;
+            margin-bottom: var(--space-md);
+        }
+
+        .award-winner {
+            font-size: var(--text-xl);
+            color: var(--accent);
+            margin-bottom: var(--space-sm);
+        }
+
+        .award-value {
+            font-family: var(--font-mono);
+            font-size: var(--text-lg);
+            color: var(--muted);
+        }
+
+        .award-description {
+            font-size: var(--text-sm);
+            color: var(--muted);
+            margin-top: var(--space-md);
+        }
+
+        .award-tagline {
+            font-size: var(--text-sm);
+            font-style: italic;
+            color: var(--fg);
+            opacity: 0.7;
+            margin-top: var(--space-xs);
+        }
+
+        .award-chart {
+            margin-top: var(--space-md);
+            margin-bottom: var(--space-sm);
+        }
+
+        .award-bar-container {
+            background: var(--border);
+            height: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .award-bar-avg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background: var(--muted);
+            opacity: 0.3;
+        }
+
+        .award-bar-winner {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--accent3));
+        }
+
+        .award-bar-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: var(--text-xs);
+            color: var(--muted);
+            margin-top: var(--space-xs);
+        }
+
+        .award-bar-label-winner {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        /* --- Popularity Scatter (ported from index) --- */
+        .popularity-scatter-container {
+            width: 100%;
+            margin: var(--space-xl) 0;
+        }
+
+        .popularity-scatter {
+            width: 100%;
+            height: 500px;
+        }
+
+        .outlier-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-lg);
+            margin-top: var(--space-xl);
+        }
+
+        .outlier-section {
+            background: var(--card-bg);
+            border: 1px dotted var(--border);
+            border-radius: 2px;
+            padding: var(--space-lg);
+        }
+
+        .outlier-section h4 {
+            margin-bottom: var(--space-md);
+            color: var(--accent);
+        }
+
+        .outlier-section.sleepers h4 {
+            color: var(--accent2);
+        }
+
+        .outlier-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-sm) 0;
+            border-bottom: 1px solid var(--border);
+            font-size: var(--text-sm);
+        }
+
+        .outlier-item:last-child {
+            border-bottom: none;
+        }
+
+        .outlier-song-info {
+            flex: 1;
+        }
+
+        .outlier-song-title {
+            font-weight: 600;
+        }
+
+        .outlier-song-meta {
+            color: var(--muted);
+            font-size: var(--text-xs);
+        }
+
+        .outlier-stats {
+            text-align: right;
+            font-family: var(--font-mono);
+        }
+
+        /* --- Genre / Year Insights (ported from index) --- */
+        .insights-subsection {
+            background: var(--card-bg);
+            border: 1px dotted var(--border);
+            border-radius: 2px;
+            padding: var(--space-lg);
+            margin-bottom: var(--space-xl);
+        }
+
+        .subsection-title {
+            font-size: var(--text-lg);
+            font-weight: 700;
+            margin-bottom: var(--space-sm);
+        }
+
+        .year-scatter-container,
+        .genre-boxplots-container {
+            width: 100%;
+            margin: var(--space-lg) 0;
+        }
+
+        .year-scatter-chart,
+        .genre-boxplots-chart {
+            width: 100%;
+            height: 350px;
+        }
+
+        .coverage-stat {
+            font-size: var(--text-sm);
+            color: var(--muted);
+            font-family: var(--font-mono);
+            margin-top: var(--space-sm);
+        }
+
+        /* --- Decade Machine (ported from index) --- */
+        .decade-chart-container {
+            width: 100%;
+            margin: var(--space-xl) 0;
+        }
+
+        .decade-chart {
+            width: 100%;
+            height: 400px;
+        }
+
+        .decade-awards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-md);
+            margin-top: var(--space-lg);
+        }
+
+        .decade-award {
+            background: var(--card-bg);
+            border: 1px dotted var(--border);
+            border-radius: 2px;
+            padding: var(--space-md) var(--space-lg);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .decade-award-icon {
+            font-size: var(--text-2xl);
+        }
+
+        .decade-award-label {
+            font-size: var(--text-xs);
+            color: var(--muted);
+            text-transform: uppercase;
+        }
+
+        .decade-award-name {
+            font-weight: 400;
+        }
+
+        /* --- Feuds Compact --- */
+        .feuds-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-lg);
+        }
+
+        .feuds-column h3 {
+            font-size: var(--text-lg);
+            font-weight: 400;
+            margin-bottom: var(--space-md);
+            color: var(--accent);
+        }
+
+        .feud-row {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            padding: var(--space-sm) 0;
+            border-bottom: 1px dotted var(--border);
+            font-size: var(--text-sm);
+        }
+
+        .feud-emoji {
+            font-size: var(--text-lg);
+            min-width: 28px;
+            text-align: center;
+        }
+
+        .feud-names {
+            flex: 1;
+        }
+
+        .feud-score {
+            font-family: var(--font-mono);
+            font-size: var(--text-xs);
+            color: var(--muted);
+        }
+
+        /* --- Tactical Voting Table --- */
+        .tactical-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--space-md);
+        }
+
+        .tactical-quadrant h4 {
+            font-size: var(--text-sm);
+            font-weight: 400;
+            margin-bottom: 2px;
+            color: var(--accent);
+        }
+
+        .tactical-caption {
+            font-size: var(--text-xs);
+            color: var(--muted);
+            margin-bottom: var(--space-sm);
+            line-height: 1.4;
+        }
+
+        .tactical-song {
+            padding: var(--space-xs) 0;
+            border-bottom: 1px dotted var(--border);
+            font-size: var(--text-xs);
+        }
+
+        .tactical-song-title {
+            font-weight: 500;
+            color: var(--fg);
+        }
+
+        .tactical-song-meta {
+            color: var(--muted);
+        }
+
+        /* --- Race Legend (for interactive final chart) --- */
+        .race-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-sm);
+            margin-top: var(--space-md);
+        }
+
+        .race-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: var(--text-xs);
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 3px;
+            transition: opacity 0.2s;
+        }
+
+        .race-legend-item:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .race-legend-item.faded {
+            opacity: 0.3;
+        }
+
+        .race-legend-item.active {
+            background: rgba(240, 179, 117, 0.1);
+        }
+
+        .race-legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        /* =====================================================
+           ANIMATIONS
+           ===================================================== */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .slide-in-left {
+            opacity: 0;
+            transform: translateX(-30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .slide-in-left.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* =====================================================
+           TOOLTIP
+           ===================================================== */
+        .tooltip {
+            position: fixed;
+            pointer-events: none;
+            background: rgba(16, 16, 16, 0.95);
+            border: 1px solid var(--border);
+            padding: var(--space-xs) var(--space-sm);
+            font-family: var(--font-mono);
+            font-size: var(--text-xs);
+            color: var(--fg);
+            z-index: 200;
+            max-width: 250px;
+            display: none;
+        }
+
+        /* =====================================================
+           RESPONSIVE
+           ===================================================== */
+        @media (max-width: 768px) {
+            /* CSS Variable Overrides */
+            :root {
+                --space-xl: 2rem;
+                --space-2xl: 3rem;
+            }
+
+            /* Progress Nav */
+            .progress-inner {
+                height: 40px;
+            }
+
+            .progress-dots {
+                gap: 3px;
+            }
+
+            .progress-dot {
+                width: 10px;
+                height: 10px;
+                padding: 8px;
+                background-clip: content-box;
+            }
+
+            /* Prologue / Hero */
+            #prologue {
+                min-height: 100svh;
+            }
+
+            .story-subtitle {
+                max-width: none;
+            }
+
+            .hero-stats {
+                grid-template-columns: repeat(2, 1fr);
+                gap: var(--space-sm);
+            }
+
+            .hero-stat {
+                padding: var(--space-sm);
+            }
+
+            .hero-stat-number {
+                font-size: clamp(var(--text-2xl), 6vw, var(--text-3xl));
+            }
+
+            /* Race Chart */
+            .race-sticky {
+                height: 22vh;
+                min-height: 160px;
+                top: 40px;
+                padding: var(--space-xs) var(--space-sm);
+            }
+
+            /* Chapters */
+            .chapter {
+                padding: var(--space-lg) var(--space-md);
+                min-height: auto;
+            }
+
+            .chapter-inner {
+                max-width: none;
+            }
+
+            .chapter-title {
+                font-size: clamp(var(--text-xl), 5vw, var(--text-2xl));
+            }
+
+            /* Winner Section */
+            .chapter-winner {
+                flex-direction: column;
+                gap: var(--space-xs);
+            }
+
+            .winner-song {
+                margin-left: 0;
+                text-align: left;
+                max-width: none;
+                width: 100%;
+                border-top: 1px dotted var(--border);
+                padding-top: var(--space-sm);
+            }
+
+            /* Comment Spotlights */
+            .comment-spotlight {
+                padding: var(--space-sm) var(--space-md);
+            }
+
+            .comment-text {
+                font-size: var(--text-sm);
+                margin-bottom: var(--space-xs);
+            }
+
+            /* Fun Fact Chips */
+            .fun-fact-chip {
+                white-space: normal;
+                word-break: break-word;
+            }
+
+            /* Round Awards */
+            .round-awards {
+                flex-direction: column;
+            }
+
+            .round-award {
+                min-width: 0;
+                width: 100%;
+                flex: none;
+                padding: var(--space-xs) var(--space-sm);
+            }
+
+            /* Micro Visualizations */
+            .micro-viz-label {
+                min-width: 90px;
+                max-width: 90px;
+            }
+
+            .micro-viz-note {
+                flex-basis: 100%;
+            }
+
+            /* Data Callout */
+            .data-callout {
+                display: block;
+                word-break: break-word;
+            }
+
+            /* Lead Change Callout */
+            .lead-change-icon {
+                font-size: var(--text-xl);
+            }
+
+            .lead-change-text {
+                font-size: var(--text-xs);
+            }
+
+            /* Scorecard */
+            .scorecard {
+                height: 80px;
+            }
+
+            /* Epilogue */
+            .standing-name {
+                font-size: var(--text-base);
+            }
+
+            .standing-row {
+                gap: var(--space-sm);
+            }
+
+            .standing-link {
+                font-size: 0;
+                overflow: hidden;
+                width: 0;
+                min-width: 0;
+                padding: 0;
+            }
+
+            .superlatives-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .superlative-card {
+                padding: var(--space-md);
+            }
+
+            /* Interstitial Analytics */
+            .interstitial {
+                padding: var(--space-lg) var(--space-md);
+                min-height: auto;
+            }
+
+            .feuds-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tactical-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .outlier-list {
+                grid-template-columns: 1fr;
+            }
+
+            .popularity-scatter {
+                height: 350px;
+            }
+
+            .year-scatter-chart,
+            .genre-boxplots-chart {
+                height: 280px;
+            }
+
+            .decade-chart {
+                height: 300px;
+            }
+
+            .awards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            /* Animations */
+            .fade-in {
+                transform: translateY(12px);
+            }
+
+            .slide-in-left {
+                transform: translateX(-15px);
+            }
+
+            /* Footer */
+            footer {
+                padding: var(--space-lg) var(--space-md);
+            }
+
+            footer p {
+                font-size: var(--text-xs);
+            }
+        }
+
+        /* Small phones */
+        @media (max-width: 480px) {
+            .progress-label {
+                display: none;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-stat {
+                display: flex;
+                align-items: baseline;
+                gap: var(--space-sm);
+                text-align: left;
+            }
+
+            .hero-stat-number {
+                font-size: var(--text-2xl);
+            }
+
+            .hero-stat-label {
+                margin-top: 0;
+            }
+
+            .micro-viz-label {
+                min-width: 70px;
+                max-width: 70px;
+            }
+
+            .race-sticky {
+                height: 18vh;
+                min-height: 140px;
+            }
+
+            .story-title {
+                font-size: clamp(var(--text-3xl), 12vw, var(--text-4xl));
+            }
+
+            .epilogue-title {
+                font-size: clamp(var(--text-2xl), 7vw, var(--text-3xl));
+            }
+        }
+
+        /* Landscape phones */
+        @media (max-height: 500px) {
+            .race-sticky {
+                height: 15vh;
+                min-height: 120px;
+            }
+
+            .progress-inner {
+                height: 36px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Progress Navigation -->
+<nav class="progress-nav" id="progressNav">
+    <div class="progress-inner">
+        <a href="index.html" class="nav-back">ML2</a>
+        <span class="progress-label" id="progressLabel">Prologue</span>
+        <div class="progress-dots" id="progressDots"></div>
+    </div>
+    <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progressFill"></div>
+    </div>
+</nav>
+
+<!-- Tooltip -->
+<div class="tooltip" id="tooltip"></div>
+
+<!-- Prologue -->
+<section id="prologue">
+    <div class="prologue-content" id="prologueContent">
+        <!-- Populated by JS -->
+    </div>
+</section>
+
+<!-- Race Wrapper: sticky chart + all chapters -->
+<div id="race-wrapper">
+    <div class="race-sticky" id="raceStickyChart">
+        <svg id="raceSvg"></svg>
+    </div>
+    <div id="chapters">
+        <!-- 20 chapter sections populated by JS -->
+    </div>
+</div>
+
+<!-- Epilogue -->
+<section id="epilogue">
+    <div class="epilogue-inner" id="epilogueContent">
+        <!-- Populated by JS -->
+    </div>
+</section>
+
+<!-- Footer -->
+<footer>
+    <p>FML II: A retrospective &mdash; Music League II in 20 rounds and 7 deep dives</p>
+    <p style="margin-top: var(--space-sm);"><a href="index.html">Back to Dashboard</a></p>
+</footer>
+
+<script>
+// =====================================================
+// GLOBALS & UTILITIES
+// =====================================================
+let DATA = null;
+let COMMENTS = null;
+let STORIES = null;
+let currentRound = 0;
+
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+
+function showTooltip(event, html) {
+    const tip = $('#tooltip');
+    tip.innerHTML = html;
+    tip.style.display = 'block';
+    tip.style.left = (event.clientX + 12) + 'px';
+    tip.style.top = (event.clientY - 12) + 'px';
+}
+
+function hideTooltip() {
+    const tip = $('#tooltip');
+    tip.style.display = 'none';
+}
+
+// =====================================================
+// PLAYER COLORS (consistent across charts)
+// =====================================================
+const PLAYER_COLORS = {};
+const COLOR_PALETTE = [
+    '#f0b375', '#e06c75', '#61afef', '#98c379', '#c678dd',
+    '#56b6c2', '#d19a66', '#e5c07b', '#be5046', '#7ec8e3',
+    '#c3a6ff', '#ff9f43', '#20bf6b', '#fc5c65', '#45aaf2',
+    '#fed330', '#a55eea', '#26de81'
+];
+
+function assignPlayerColors(players) {
+    // Sort by total points (top players get most distinct colors)
+    const sorted = [...players].sort((a, b) => b.total_points_received - a.total_points_received);
+    sorted.forEach((p, i) => {
+        PLAYER_COLORS[p.id] = COLOR_PALETTE[i % COLOR_PALETTE.length];
+    });
+}
+
+// Top 6 player IDs (set after data load)
+let TOP6_IDS = [];
+
+// =====================================================
+// ROUND NARRATIVES — The heart of the story
+// =====================================================
+const ROUND_NARRATIVES = [
+    // Round 1: There There
+    {
+        commentary: [],
+        awards: [
+            { label: 'Hipster Win', winner: 'Ghandi El-Chamaa', caption: 'Won with lowest Last.fm listener count of the round (197)' },
+            { label: 'Sob Story (1 of 2)', winner: 'basssbear', caption: 'Told a burnout story. Tied 2nd. It really worked.' },
+            { label: 'Le Cleclec Award', winner: 'Le Cleclec', caption: 'Most controversial song: NIN\'s "We\'re In This Together" (variance 1.29)' }
+        ],
+        data_callout: 'Ghandi leads from the gun: 17pts, a 4pt gap over 2nd place.'
+    },
+    // Round 2: We No Speak Americano
+    {
+        commentary: [],
+        awards: [
+            { label: 'Career Best', winner: 'Bino', caption: 'Mamake by Sona Jobarteh: 18pts. Season high for Bino.' },
+            { label: 'Career Best', winner: 'Gisele Neves', caption: 'Lucro by BaianaSystem: 16pts. Season high for Gisele.' },
+            { label: 'Career Best', winner: 'sarah', caption: 'Tu Vuo Fa L\'Americano: 16pts. Season high for sarah.' },
+            { label: 'Career Worst', winner: 'Ben', caption: 'Kommienezuspadt by Tom Waits: -1pts. 6 downvotes. Season low for Ben.' },
+            { label: 'Outlier Round', winner: '61% of songs', caption: '11 of 18 songs are league-wide top/bottom 10% outliers for score or variance.' },
+            { label: 'Le Cleclec Award', winner: 'Kate Hitchcock', caption: 'Most controversial: B-complex "Beautiful Lies VIP" (variance 1.17). Sung in a made-up language.' }
+        ],
+        featured_comments: [
+            { text: 'ok i have a genuine autistic-I-dont-understand-im-not-trying-to-be-mean question but what actually compels anyone to want to listen to this?', author_name: 'basssbear', song_title: 'Kommienezuspadt' },
+            { text: 'BIRD SONG IS LANGUAGE. AND QUACKING IS THE MOST BEAUTIFUL OF ALL BIRD SONGS. PROVE ME WRONG.', author_name: 'Kate Hitchcock', song_title: 'Quack Fat' },
+            { text: 'Every aspect of this was beautiful: the voice, the language, the kora/guitar/bass/drums and the production. Almost makes me think I should have submitted a proper song myself.', author_name: 'Matt', song_title: 'Mamaké' }
+        ],
+        data_callout: 'First lead change: Gisele overtakes Ghandi. Gap: 2 points.'
+    },
+    // Round 3: We'll Do It Live
+    {
+        commentary: [],
+        awards: [
+            { label: 'Career Best', winner: 'Shimonster', caption: 'Bad Kingdom by Moderat: 18pts. Round win. Season high for Shimonster.' },
+            { label: 'Career Best', winner: 'annamariawh', caption: 'Everyday I Have The Blues by B.B. King: 17pts. 0 downvotes. Season high. Jumped +8 from Round 2.' },
+            { label: 'Career Worst', winner: 'Sin', caption: 'I Zimbra by Talking Heads: 1pt. Season low. Dropped from 9 in R2.' },
+            { label: 'Career Worst', winner: 'Adrian', caption: 'Are We the Waiting by Green Day: 2pts. 4 downvotes. Season low for Adrian.' },
+            { label: 'Genre Skew', winner: '50% of songs', caption: '9 of 18 submissions are rock. "Live album" apparently means "guitar solo."' },
+            { label: 'Consensus Round', winner: '50% of songs', caption: '9 of 18 songs received zero downvotes.' },
+            { label: 'Photo Finish', winner: 'Shimonster', caption: 'Wins by 1 point over annamariawh (18 vs 17). Tightest margin so far.' }
+        ],
+        featured_comments: [
+            { text: 'In the words of the bard: "it is a tale told by an idiot, full of sound and fury, signifying nothing"', author_name: 'Kate Hitchcock', song_title: 'Black Math - Live' },
+            { text: 'The soundtrack to a lift in a retirement home in purgatory.', author_name: 'Matt', song_title: 'Dreams - Live 1977' },
+            { text: 'It\'s like you can hear the crowd slipping into their mid-life crises in real time. I know it\'s a classic but just leaves me cold. I didn\'t want to downvote it but it had to go somewhere.', author_name: 'Ben', song_title: 'Dreams - Live 1977' }
+        ],
+        data_callout: 'Gisele and Shimonster tied at 45pts. 6 players within 16pts of the lead.'
+    },
+    // Round 4: Love is the Answer
+    {
+        commentary: [],
+        awards: [
+            { label: 'Famous Song Penalty', winner: '3 songs with 8M+ plays', caption: 'The Clash, Alice In Chains, Human League. Combined: 10pts. Average: 3.3pts.' },
+            { label: 'Obscurity Premium', winner: 'RA', caption: '"Where Did You Go?" has 7 Last.fm plays. Scored 13pts.' },
+            { label: 'The Poppy Gambit', winner: 'Shimonster', caption: '"have you had enough?" — 5 downvotes, 2 max votes. "Noise. Just noise." — sarah' },
+            { label: 'Knife-Edge Standings', winner: 'Top 7', caption: 'Separated by just 8 points (51-43). Any single strong round could reshuffle everything.' },
+            { label: 'The Quiet Climb', winner: 'Juju', caption: 'Wins from 11th place with Melody Gardot\'s "Who Will Comfort Me." 16pts.' },
+            { label: 'Grunge Tax', winner: 'Gisele Neves', caption: 'Led for 3 rounds. Submits Alice In Chains\' "Would?" (8.85M plays). 4 points. Lead gone.' }
+        ],
+        featured_comments: [
+            { text: 'Who hurt you? Was it the frog?', author_name: 'Kate Hitchcock', song_title: 'Why Is a Frog Too?' },
+            { text: 'Noise. Just noise. Sorry. If I was hungover again, this would have been the vomit maker.', author_name: 'sarah', song_title: 'have you had enough?' },
+            { text: "Listening to Pulp reminds me of the time I embarrassed myself in front of Jarvis Cocker at work by panicking and barging out in front of him and the Chair of our Board for literally no reason other than I saw two important people and had a dyspraxic freak out. I had to write an apology email. Also this song is meh", author_name: 'Kate Hitchcock', song_title: 'Do You Remember The First Time?' }
+        ],
+        data_callout: 'Lead change #2: Shimonster takes 1st (51pts).'
+    },
+    // Round 5: A Fire In The Sky
+    {
+        commentary: [],
+        awards: [
+            { label: 'Zero Max Votes Win', winner: 'sarah', caption: 'Won without a single 3-point vote. Nobody loved it most — everyone just liked it enough.' },
+            { label: 'The Nostalgia Premium', winner: 'sarah', caption: '"The Sea" by Morcheeba: 3.36M Last.fm plays — famous enough to trigger memories, not famous enough to bore. "Like a warm hug that reminds me of being 16." — Matt' },
+            { label: 'Thanks for Listening Award', winner: 'Top 3 finishers', caption: 'Morcheeba, Smoke City, Massive Attack. Three trip-hop tracks from \'97-\'98 in the top 4.' },
+            { label: 'Le Cleclec Award', winner: 'Le Cleclec', caption: '"Underneath the Waves" by Strapping Young Lad: 0pts, 7 downvotes. Industrial metal for a water round.' },
+            { label: 'Freefall', winner: 'Gisele Neves', caption: 'Led the league in Rounds 2-3. Now 7th. 7 points over the last 2 rounds while sarah scored 29.' },
+            { label: 'Deep Cut Dividend', winner: 'Kate Hitchcock', caption: '"Salt Water" by Bedouin Soundclash: 6,998 Last.fm plays. Tied for 1st. Second consecutive top-2 finish.' },
+            { label: 'Famous Song Penalty', winner: 'Adrian & Surrealist', caption: '"Nightswimming" (3.2M plays) → 4pts. "When the Levee Breaks" (1.9M plays) → 8pts. Classics keep getting punished.' }
+        ],
+        featured_comments: [
+            { text: 'This would have been a great entry for week 7.', author_name: 'Bino', song_title: 'Underneath the Waves' },
+            { text: "It's the song. It's the song about water and swimming, isn't it?", author_name: 'Sin', song_title: 'Nightswimming' },
+            { text: "I think saliva is the most pleasant body water, it makes food delicious. If you're gonna go with the big crowd pleaser mega hit surely you gotta have a stronger link than well when we cry it's made of water innit", author_name: 'basssbear', song_title: 'Teardrop' }
+        ],
+        data_callout: 'Lead change #3: sarah surges to 1st. Top 5 within 6 points.'
+    },
+    // Round 6: Turn the Page
+    {
+        commentary: [],
+        awards: [
+            { label: 'Compound Interest', winner: 'Kate Hitchcock', caption: 'R4: 14pts. R5: 15pts. R6: 13pts. Three consecutive top-3 finishes. Takes the overall lead.' },
+            { label: 'Career Best', winner: 'RA', caption: '"Ms. Fat Booty" by Mos Def: 15pts. Jumped from 11th to 9th.' },
+            { label: 'Country Music Penalty', winner: 'sarah', caption: '"Goodbye Earl" by The Chicks: 5pts. "I really hate country music, sorry" — Shimonster' },
+            { label: 'Le Cleclec Award', winner: 'Le Cleclec', caption: '"Oh No!" by MARINA: -2pts. First negative score in league. 6 downvotes, 0 upvotes.' },
+            { label: 'Famous Song Exception', winner: 'annamariawh', caption: '"Fast Car" (10.9M plays) → 11pts.' },
+            { label: 'Bloodbath Round', winner: '3 submissions', caption: 'Scored 0 or below. First time. Widest gap yet: 18 points between best and worst.' }
+        ],
+        micro_viz: {
+            title: "Ben's Body Count Ledger",
+            bars: [
+                { label: 'The Foggy Dew', value: 485, note: '+ 16 executed leaders' },
+                { label: 'Pirate Jenny', value: 0, note: '"16,000… but zero because it\'s all in her head"' },
+                { label: 'Carolina Drama', value: 3, note: '"the preacher is bleeding out"' },
+                { label: 'Even Out', value: 1, note: '"he totally brought it on himself"' },
+                { label: 'The Snake', value: 1, note: '"one tender-hearted woman"' },
+                { label: 'Goodbye Earl', value: 1, note: '"just Earl. Mmmm, beans."' },
+                { label: 'Casey Jones', value: 1, note: '"just Casey the scab"' },
+                { label: 'Ms. Fat Booty', value: 1, note: '(Idaho potato)' },
+                { label: 'Girl With One Eye', value: 0.00014, note: '"by weight"' },
+                { label: 'Brave Sir Robin', value: 0, note: '"he bravely turned his tail and fled"' },
+                { label: 'A Horse w/ No Name', value: 0, note: '"hopefully the dad does one soon"' },
+                { label: "I've Been Everywhere", value: 0 },
+                { label: 'Oh No!', value: 'my attention' }
+            ]
+        },
+        featured_comments: [
+            { text: 'Body count: my attention.', author_name: 'Ben', song_title: 'Oh No!' },
+            { text: 'There was stiff competition for the downvote this week but you managed to nail it with the quickest skip of all. Well done!', author_name: 'RA', song_title: 'Oh No!' },
+            { text: 'I just wanna change I just wanna change I just wanna change the song as soon as humanly possible', author_name: 'Matt', song_title: 'Oh No!' }
+        ],
+        data_callout: 'Lead change #4: Kate takes 1st (73pts). 4 different leaders in 6 rounds.'
+    },
+    // Round 7: Mourning Has Broken
+    {
+        commentary: [],
+        awards: [
+            { label: 'The 23-Point Bomb', winner: 'Ghandi El-Chamaa', caption: '"You\'re Dead" by Norma Tanega. Highest score of the entire season. 3 max votes. 0 downvotes. The gap to 2nd is now 12 points.' },
+            { label: 'The Michael Jackson Problem', winner: 'Gisele Neves', caption: '"Thriller" (13.2M plays) → 0pts, 3 downvotes. Three voters cite paedophilia. Career worst.' },
+            { label: 'Le Cleclec Redemption', winner: 'Le Cleclec', caption: 'From -2pts last round to 12pts this round. "Triphop necrophilia anthem anyone?" Submission comment of the season.' },
+            { label: 'The Doorknock Gambit', winner: 'Matt', caption: 'Submits "Intense Sound of Doorknocking with Hello Hello" by Todster. 8pts despite 4 downvotes.' },
+            { label: 'Famous Song Penalty', winner: '3 most-played songs', caption: 'Chop Suey! (33.5M plays) → 8pts. Closer (15.9M) → 6pts. Thriller (13.2M) → 0pts. Winner has 1.3M.' },
+            { label: 'Caption Saves', winner: 'Shimonster', caption: '"Daemoni" by Igorrr: 17pts and runner-up. The "Little Timmy at granny\'s funeral" caption did heavy lifting. Ghandi: "Caption saved you from a -1."' }
+        ],
+        featured_comments: [
+            { text: 'I agree this is inappropriate but also I am confused what the connection to funerals is. Are you suggesting necrophilia? If so, you should have been more specific. Please detail your planned inappropriate funerals in future', author_name: 'Kate Hitchcock', song_title: 'Closer' },
+            { text: "I too once tried making music on ketamine but I never got as far as pressing the result to vinyl", author_name: 'basssbear', song_title: "Dead Man's Tetris" },
+            { text: 'I fear this has ruined the Eric Clapton song Tears in Heaven for me now', author_name: 'Ben', song_title: 'Sluts in Heaven' }
+        ],
+        data_callout: 'THE 23-POINT BOMB. Highest score of the season. Ghandi leads by 12.'
+    },
+    // Round 8: Piss Budgies
+    {
+        commentary: [],
+        awards: [
+            { label: 'The Authenticity Paradox', winner: 'basssbear & RA', caption: 'Two submissions voted "most piss budgies" by the room. Combined score: 1pt. Nailing the brief too perfectly is punished.' },
+            { label: "Gisele's Redemption", winner: 'Gisele Neves', caption: 'From 0pts (Thriller, R7) to 15pts (tied 1st, R8). "The Lost Jungle of Booshi" has 14 Last.fm plays. Most obscure winner of the season.' },
+            { label: 'Career Best', winner: 'LadyJane', caption: '"Horse Outside" by The Rubberbandits: 15pts, tied 1st. "The pissest budgie. Half horse half bird. Hippogriff!" — Ben' },
+            { label: "basssbear's Trough", winner: 'basssbear', caption: '"shitcorebabes" by Shoebill: 1pt. Career worst. The low point from which the late-season comeback will seem impossible.' },
+            { label: 'Famous Song Penalty', winner: 'Kate Hitchcock', caption: '"Bat Country" by Avenged Sevenfold (9.3M plays) → 4pts. Kate\'s lowest since R1. The consistency machine has a misfire.' },
+            { label: 'Compression Round', winner: 'The field', caption: 'Winner scores only 15pts — lowest winning score in rounds. 7th place scores 12. Nobody knows what "weird" means.' }
+        ],
+        featured_comments: [
+            { text: 'More a sort of damp pigeon imo I\'m afraid', author_name: 'basssbear', song_title: 'Kandy' },
+            { text: 'I discern neither piss nor budgies', author_name: 'Kate Hitchcock', song_title: 'How The Leopard Got Its Spots' },
+            { text: 'A point for each of my children born to this.', author_name: 'Ghandi El-Chamaa', song_title: 'Hanuman Chalisa' }
+        ],
+        data_callout: 'basssbear scores 1pt — the lowest non-negative score. Ghandi leads at 107.'
+    },
+    // Round 9: Exit Music
+    {
+        commentary: [],
+        awards: [
+            { label: 'The Quiet Climb', winner: 'Juju', caption: '13th after R1. 3rd after R9. Never won a round. Averaging 13.3pts over last 3 rounds.' },
+            { label: 'Career Best', winner: 'Matt', caption: '"Trust Issues" by Coco Bryce: 16pts, tied 1st. First round win.' },
+            { label: 'Ghandi Vulnerable', winner: 'Ghandi El-Chamaa', caption: 'Submits Rodríguez, scores 7pts. Lead shrinks from 16 to 11.' },
+            { label: 'Wrong Track', winner: 'LadyJane', caption: '"Kingdom" by Maribou State: 12pts. It\'s the second track on the album, not the last.' },
+            { label: "Kate's Slide", winner: 'Kate Hitchcock', caption: 'From 2nd (R7) to tied-7th (R9). "Good Riddance" from Hades: 5pts.' }
+        ],
+        featured_comments: [
+            { text: 'This tune sounds like Cobain is having a particularly difficult poo and wants the whole world to know about it', author_name: 'Kate Hitchcock', song_title: 'Endless, Nameless' },
+            { text: "Jeepers, this dude needs to sort it out. What a load of poetic bohemian poppycock. Not the worst tune but gets my downvote for just being a wanky tosspot.", author_name: 'RA', song_title: 'Cause' },
+            { text: "On balance I think I'll leave it", author_name: 'Kate Hitchcock', song_title: 'Take It Or Leave It' }
+        ],
+        data_callout: 'Juju rises to 3rd — from 13th after Round 1. The quiet climb continues.'
+    },
+    // Round 10: Spotify Roulette
+    {
+        commentary: [],
+        awards: [
+            { label: 'Le Cleclec Award', winner: 'Le Cleclec', caption: '"Pallbearer" by Igorrr & Bong-Ra: variance 1.45 — season\'s most controversial song. 7pts despite heavy downvoting.' },
+            { label: "Ghandi's Career Worst", winner: 'Ghandi El-Chamaa', caption: '"Evergreen" by Richy Mitch & The Coal Miners. 4pts — 7.6 below his average. Still 1st, but the cushion is thinning.' },
+            { label: 'Algorithm Leveller', winner: 'LadyJane', caption: 'Wins with 14pts and zero max votes. 13 voters, all moderate. The algorithm gave everyone mid-tier ammo.' },
+            { label: 'The Igorrr Fanclub', winner: 'Shimonster & basssbear', caption: '3pts each for "Pallbearer." "Shimmy vote bait. Of course I absolutely love this." Five others downvote it.' },
+            { label: "Matt's Vanishing Act", winner: 'Matt', caption: 'Scores 0. Drops from 5th to 9th. Four places in one round. The biggest single-round slide of the season so far.' }
+        ],
+        featured_comments: [
+            { text: 'I will give this a point just because when I first saw the playlist I thought it said sponge Bob square pants. And then upon listening, I did like it.', author_name: 'Juju', song_title: 'Nothing Is Something Worth Doing' },
+            { text: 'This feels like the kinda tune they would have playing in the background of one of those Blade vampire clubs where the blood comes out of the sprinklers', author_name: 'Kate Hitchcock', song_title: 'Memory Cells - With Ghost Dance' }
+        ],
+        data_callout: 'Igorrr controversy: 6.93 — season high. 5 negative votes, 2 max votes.'
+    },
+    // Round 11: The Colour And The Shape
+    {
+        commentary: [],
+        awards: [
+            { label: 'The Lloyd Webber Incident', winner: 'sarah', caption: '"Jacob and Sons / Joseph\'s Coat." -1pts. Career worst by a mile — 10.3 below her average. 4 downvotes.' },
+            { label: 'Career Best x2', winner: 'Kate Hitchcock & Adrian', caption: 'Kate: 16pts with "The Golden Fleece." Adrian: 15pts with "Green Light." Two career bests in one round. Kate leaps from 7th to 3rd.' },
+            { label: 'DnB Supremacy', winner: 'Adrian & basssbear', caption: 'Green Light (15) + Green Tea Ice Cream (14). DnB averages 14.5.' },
+            { label: 'The Two-Point Gap', winner: 'Ghandi & Juju', caption: '127 vs 125. From 18pts behind after R1 to breathing distance. ' },
+            { label: "Shimonster's Freefall", winner: 'Shimonster', caption: '4th to 9th. Five places down in one round. "Blood In The River" — 4pts.' },
+            { label: 'Le Cleclec Award', winner: 'Le Cleclec', caption: '1pt with Incubus. 4 negative votes. "I can\'t believe this is Incubus" — Sin.' }
+        ],
+        featured_comments: [
+            { text: "I can't believe this is Incubus. I love Morning View, I love Brandon. I can't bring myself to downvote him, especially when the devil Lloyd Webber walks among us. I'll just pretend I never heard this and that Incubus made one perfect album and NOTHING ELSE.", author_name: 'Sin', song_title: 'A Certain Shade of Green' },
+            { text: "Yeah, this is the stuff right here. I will never work out why they didn't invent grime MCs from Manchester until the 2010s, it sounds cool as fuck. Anyone tells you dubstep is dead, ram this down their throat. Hostile, spiky, heavy, bassy, lovely.", author_name: 'Ben', song_title: 'Blue Mile' },
+            { text: "Just a classic. I always hear \"just gonna get in my bath\" and then it goes all echoey like she's in the tub. I know this isn't what she says, but you know what Aluna? Man sounds like a fool, you soak them troubles away love.", author_name: 'Sin', song_title: 'White Noise' }
+        ],
+        data_callout: 'Adrian\'s best round: 15pts. Ghandi-Juju gap narrows to 2 points.'
+    },
+    // Round 12: Feat: Don't Fail Me Now
+    {
+        commentary: [],
+        awards: [
+            { label: 'The Heist', winner: 'Juju', caption: '13th after R1. 1st after R12. 18pts with Propellerheads & Shirley Bassey. Career best. ' },
+            { label: 'The Gregorian Gambit', winner: 'Ghandi El-Chamaa', caption: '"Parce Mihi Domine" — Gregorian chant at a collabs round. Kate: "What the fuck." 2 max votes, 3 negatives. Ghandi drops to 2nd.' },
+            { label: "basssbear's Comeback", winner: 'basssbear', caption: '15pts. 11th to 6th. "Back to Your Roots" — on the vocals, Bradley from S Club 7. Ben: "Genuinely shocked. Mind blown."' },
+            { label: 'The 15-Point Club', winner: 'Kate, basssbear & Matt', caption: 'Three players tie at 15pts. Kate with SBTRKT, basssbear with Jonny L, Matt with Asian Dub Foundation. The collaboration round collaborates on a three-way tie.' },
+            { label: "sarah's Slide", winner: 'sarah', caption: '4th to 9th. "Bam" by JAY-Z & Damian Marley. 2pts. Five places down in one round.' },
+            { label: "LadyJane's Crash Landing", winner: 'LadyJane', caption: 'Wins R10. Career worst R12. "Don\'t Judge Me" — 1pt. The league judged.' }
+        ],
+        featured_comments: [
+            { text: "I'm sorry gently warbling a saxophone in the vicinity of a choir warming up for the lord of the rings soundtrack session does not make for a surprising collaboration. Feels like you could license it to a posh spa for the sauna tho", author_name: 'basssbear', song_title: 'Parce Mihi Domine' },
+            { text: "I went to a catholic secondary school as one of their 10% intake of non-faith students. It was hell. I appreciate that some might think this tune lovely, but for me, it is a horrendous sensory combination of old bad memories of school mass, with an offensively cheesy sax solo", author_name: 'Shimonster', song_title: 'Parce Mihi Domine' },
+            { text: "We wait 2 seasons for a nick cave song then we get 2 in a week. Not a massive nick cave fan but he scored a vote last week and gets another one this week therefore I'm questioning am I a massive Nick Cave fan", author_name: 'Bino', song_title: 'All The Pretty Little Horses' },
+            { text: "I don't feel like Albarn and Simonon make such strange bedfellows, but Allen certainly tips it for an unlikely threesome. TGTBaTQ gives LGBTQIA+ a run for its money as an acronym too.", author_name: 'Sin', song_title: 'The Truce of Twilight' }
+        ],
+        data_callout: 'LEAD CHANGE: Juju overtakes Ghandi (143 vs 136). From 13th to 1st.'
+    },
+    // Round 13: TOS
+    {
+        commentary: [],
+        awards: [
+            { label: "Ben's Zero", winner: 'Ben', caption: '"A Life Less Ordinary" by Ash. 0pts. Career worst. 4 negative votes. Matt\'s entire review: "A Song So Ordinary."' },
+            { label: 'Famous Song Penalty', winner: 'Skyfall & Gangsta\'s Paradise', caption: "13M + 12M Last.fm plays, both mid-table. The Kiss (460K plays): 14pts." },
+            { label: 'Le Cleclec Award', winner: 'Gisele Neves', caption: 'Most controversial submission. "Circle of Life" — variance 1.08, 3 negatives. Matt: "I never want to hear this song again. Ever." 11pts.' },
+            { label: "Le Cleclec's Best Round", winner: 'Le Cleclec', caption: '12pts with Requiem for a Dream. 3rd place. Miles above usual average. "Couldn\'t be arsed trawling through 15 versions to find the wistful one."' }
+        ],
+        featured_comments: [
+            { text: "I love this movie. I wanted to call my first born emilio after emilio in this film. Ghandi wasn't having it", author_name: 'annamariawh', song_title: "Gangsta's Paradise" },
+            { text: "Thankfully this tune does capture the essence of what a bond film is all about, because nothing about the rest of film does. It's basically Home Alone 5: Lost on the Moors. Begrudgingly though, the tune is a banger!", author_name: 'Surrealist', song_title: 'Skyfall' },
+            { text: "I fucking hate the show but Britell is a genius, I made it through a few episodes just to hear this open up.", author_name: 'Ghandi El-Chamaa', song_title: 'Succession (Main Title Theme)' }
+        ],
+        data_callout: 'Quiet round. Juju leads Ghandi by 3 (150-147). basssbear steady at 10.'
+    },
+    // Round 14: Ladies and Gentlemen We Are Floating in Space
+    {
+        commentary: [],
+        awards: [
+            { label: "Juju's Imperial Phase", winner: 'Juju', caption: '18, 7, 18, 17 in last 4 rounds. Two wins in three. Lead extends to 9pts. Maximum dominance.' },
+            { label: "Kate's Career Best", winner: 'Kate Hitchcock', caption: '16pts with "Break Apart" by Bonobo & Rhye. Highest score of her season. Solidifies 3rd.' },
+            { label: 'The 135-Year Spread', winner: 'Sin', caption: 'Erik Satie (1890) to 2022. Widest chronological range of the season.' },
+            { label: 'Le Cleclec Award', winner: 'Le Cleclec', caption: 'Autechre\'s "Krib." 5pts, 3 negative votes. Erica: "I thought there was a squeaking door and then realised it was coming from the speakers."' },
+            { label: "Ben's Cold Streak", winner: 'Ben', caption: '0pts (R13) then 4pts (R14). Two-round total: 4pts. The chill-out round did not chill Ben\'s slump.' },
+            { label: 'The 20-Minute Flex', winner: 'Matt', caption: '"In a Silent Way" by Miles Davis. Nearly 20 minutes. Shimonster listened 3 times — nearly an hour. "Maybe my IQ is not high enough."' }
+        ],
+        featured_comments: [
+            { text: "Permit me to go Full Franks on this one. Cook up a chunky hip-hop beat, sprinkle some random samples and a few piano chords on top. Add a female vocal in completely the wrong fucking key and presto, another Shadow banger. I just do not get the fuss about the guy, any of it. Minus one spliff out of three.", author_name: 'Ben', song_title: 'Midnight In A Perfect World' },
+            { text: "Sqz Me Going In? Is this a tune or a porno? Also appears to have a photo of Nazi holiday camp Prora on the cover. But that aside it's a nice bit of minimal.", author_name: 'Surrealist', song_title: 'Goin In' },
+            { text: "I am the colleague who makes other colleagues put headphones on. Literally, my colleague Jonathan used to put headphones on when I walked in the door. I certainly don't chew gum but I am known for typing way too loud and being super chatty.. Anyway nice tune", author_name: 'Kate Hitchcock', song_title: 'Gnossienne No. 1' },
+            { text: "On mine and Ghandi's second date i had miles Davis spinning round and round the record player for hours until he told me to turn it off because there was only so much miles David he could take.", author_name: 'annamariawh', song_title: 'In a Silent Way' },
+            { text: "It's got my downvote because of its sinister edge. When I'm zoning out, I've usually got the house to myself enjoying a micro dose. I can't do sinister", author_name: 'annamariawh', song_title: 'Gnossienne No. 1' },
+            { text: "I thought there was a squeaking door somewhere at first and then realised it was coming from the speakers", author_name: 'Erica Silva', song_title: 'Krib' }
+        ],
+        data_callout: 'Juju extends lead to 9 points. Imperial phase: 18, 7, 18, 17 in last 4.'
+    },
+    // Round 15: It Was a Very Good Year
+    {
+        commentary: [],
+        awards: [
+            { label: 'Kate Bush Breaks the Penalty', winner: 'Ghandi El-Chamaa', caption: '19.5M Last.fm plays. 17pts. Winner. First time the most famous song actually wins. ' },
+            { label: "Kate's Whiplash", winner: 'Kate Hitchcock', caption: 'Career best (16pts, R14) → career worst (2pts, R15). "Livin\' On A Prayer." Le Cleclec\'s review: "Get in the bin."' },
+            { label: 'The Stadium Rock Massacre', winner: 'Adrian & Kate', caption: 'Eye of the Tiger: 3pts, 6 negatives. Livin\' On A Prayer: 2pts, 5 negatives. The 80s rock canon, rejected.' },
+            { label: 'The Gap Narrows', winner: 'Ghandi & Juju', caption: '9pts → 5pts in one round. Ghandi 175, Juju 180.' },
+            { label: 'The Demographic X-Ray', winner: 'Everyone', caption: 'All submissions from 1978-1989. Six songs from 1982.' },
+            { label: 'Le Cleclec Award', winner: 'Le Cleclec', caption: '"Only You" by Yazoo. 4pts. "Everyone else can listen to yazoo, but for my Christmas I would like Henry\'s comment on Catholic Sex by Throbbing Gristle."' }
+        ],
+        micro_viz: {
+            title: "The Demographic X-Ray: Birth Years",
+            bars: [
+                { label: '1978', value: 1, note: 'Bino' },
+                { label: '1979', value: 1, note: 'Juju' },
+                { label: '1981', value: 1, note: 'Gisele' },
+                { label: '1982', value: 6, note: 'Matt, Surrealist, annamariawh, RA, Le Cleclec, Adrian' },
+                { label: '1983', value: 2, note: 'Ben, Sin' },
+                { label: '1985', value: 1, note: 'Ghandi' },
+                { label: '1986', value: 3, note: 'Shimonster, Erica, Kate' },
+                { label: '1987', value: 1, note: 'basssbear' },
+                { label: '1989', value: 1, note: 'LadyJane' }
+            ]
+        },
+        featured_comments: [
+            { text: "The greatest misheard lyric of all time from our friend Andy when he was a lad. POPPADOM BRIDGE. Tell you what though, this one hits different when you have a ten-year-old daughter. No, you are fucking well not keeping your baby, young lady; now finish your pasta and go clean your teeth.", author_name: 'Ben', song_title: 'Papa Don\'t Preach' },
+            { text: "Fun fact I once, through a series of unrelated coincidences, gave the son of the bassist of the specials a ride from Coventry to ally pally for a 24 hour trance night. He taught me about the power of bananas for comedowns. Good times. Tune ain't bad either", author_name: 'basssbear', song_title: 'Rasta You Call' },
+            { text: "Just picked the first song that came to mind from 78 as had no time at all and deserves to be punished accordingly. Sounded horrible when came on in the playlist. To think I could have had the Buzzcocks, the jam, blondie, Parliament, 78 was a great year and I blew it", author_name: 'Bino', song_title: 'Das Model' },
+            { text: "Why are children instructing us in proper spliff etiquette", author_name: 'Kate Hitchcock', song_title: 'Pass The Dutchie' },
+            { text: "My reign began in 1986, when my hardcore mum gave birth to a breech baby with just gas and air. It was probably the most metal thing she's ever done, and it's definitely worthy of celebrating with this legendary thrash metal banger.", author_name: 'Shimonster', song_title: 'Raining Blood' },
+            { text: "Sorry Stevie but your music is atrocious", author_name: 'Kate Hitchcock', song_title: 'Do I Do' }
+        ],
+        data_callout: 'Ghandi closes the gap: 5 points behind Juju (175 vs 180). Kate Bush delivers.'
+    },
+    // Round 16: The Dark Side of the Tune
+    {
+        commentary: [],
+        awards: [
+            { label: 'Famous Song Penalty: Space Edition', winner: 'Erica Silva', caption: 'Muse "Plug in Baby": 1pt. 13.9M plays. Ben: "They literally have two songs with \'Black Hole\' in the title."' },
+            { label: 'The Tasmin Archer Schism', winner: 'Adrian', caption: '"Sleeping Satellite": 5pts, variance 1.30. Ben: "highlight of the round." Matt: "There aren\'t even any roads in space!"' },
+            { label: 'Le Cleclec Award', winner: 'Le Cleclec', caption: 'Pink Floyd "One of These Days": 2pts. Ben had already submitted it in the Live round. "Well this is awkward."' },
+            { label: 'The Lead Extends', winner: 'Juju & Ghandi', caption: 'Gap widens back to 9pts. Juju 189, Ghandi 180. But Juju\'s last 4: 13, 9, 13, 9. Flattening.' },
+            { label: "Shimonster's Space Fiction", winner: 'Shimonster', caption: 'Wrote an entire spaceship narrative in his submission comment. "Weaver" launches from a Martian spaceport. The voters gave the song 4pts.' }
+        ],
+        featured_comments: [
+            { text: "Lighthouse Family vibes. Insipid. Inconsequential. Firmly occupies the dead centre of the road. There aren't even any roads in space! We should be nowhere near the road, let alone in the middle of it.", author_name: 'Matt', song_title: 'Sleeping Satellite' },
+            { text: "I saw them at Glasto at 11am that year, and the singer barfed up basically a whole bottle of red wine on stage. He wiped his mouth, eyeballed the crowd, and said into the mic, 'Brrrrrrrrrreakfast.'", author_name: 'Ben', song_title: 'Sweet Saturn Mine' },
+            { text: "I can't downvote because the caption is so good, but this really pressed my fuck buttons", author_name: 'Erica Silva', song_title: 'Sentients' },
+            { text: "sadly all this particular track conjures for me is the world of a few muddy hippies waving around like a ketamined car-dealer-blow-around-guy at 9 in the morning at a festival", author_name: 'basssbear', song_title: 'Strange Planet' },
+            { text: "I used to be so obsessed with muse as a teenager. I blue tacked printed out pictures of Matt Bellamy all over my walls. This is not taking me to another world or to space though.", author_name: 'Shimonster', song_title: 'Plug in Baby' }
+        ],
+        data_callout: 'Juju\'s lead holds at 9pts but trajectory is flattening. Warning signs.'
+    },
+    // Round 17: Only When I Laugh
+    {
+        commentary: [],
+        awards: [
+            { label: 'The Turning Point', winner: 'Ghandi & Juju', caption: '198-198. Tied after 17 rounds. Ghandi closes a 9-point gap in one round. The Sick Note (18pts) vs Every Sperm Is Sacred (9pts). The lead changes for the last time.' },
+            { label: "Bino's First Win", winner: 'Bino', caption: '"Business Time" by Flight of the Conchords. 18pts. First-ever round win. basssbear: "This was gonna be my submission! Got my business socks on and everything."' },
+            { label: 'Le Cleclec Award', winner: 'Le Cleclec', caption: 'Mclusky "Gareth Brown Says": 1pt. ' }
+        ],
+        featured_comments: [
+            { text: "Getting a downvote for using such a tosspot word as 'obsequious', what a dickhead. Don't know what it means, don't want to know. Wankstain", author_name: 'RA', song_title: 'Turn Around' },
+            { text: "Pretty big of Coolio to allow it given neither the lyrics nor the music are his", author_name: 'Matt', song_title: 'Amish Paradise' },
+            { text: "I only knew this guy from the 'Tube, didn't know there was an album. Have two roflcopters - one for 'ad-hoc emu-bob', and one for 'that little ring-bearer cunt'.", author_name: 'Ben', song_title: 'H.Y.C.Y.BH' },
+            { text: "Listening to this I've thrown myself off the boat", author_name: 'Bino', song_title: "I'm On A Boat" }
+        ],
+        data_callout: 'TIED AT 198. Ghandi retakes the lead on tiebreak. Decisive moment.'
+    },
+    // Round 18: Say My Name
+    {
+        commentary: [],
+        awards: [
+            { label: "Sin's First Win", winner: 'Sin', caption: '"Me & Mr Jones" by Amy Winehouse. 18pts. First round win in 18 rounds. About dumping a guy because he couldn\'t get her into a Nas concert.' },
+            { label: "Juju's Collapse", winner: 'Juju', caption: '"Woman" by Neneh Cherry. -4pts. 8 downvotes. Career worst.' },
+            { label: 'The Brief Experiment', winner: 'Juju & Matt', caption: 'Great song, wrong brief (-4pts) vs terrible song, perfect brief (10pts). Theme adherence wins. The league has spoken.' },
+            { label: 'Kate Overtakes Juju', winner: 'Kate Hitchcock', caption: '"No Sex For Ben" — 16pts. Overtakes Juju for 2nd. Ben: "I wanted to hate it but it\'s really good! Highlight of the round. Sigh."' },
+            { label: 'Championship Over', winner: 'Ghandi El-Chamaa', caption: '213 vs 194. 19-point lead with 2 rounds left. The race is done.' }
+        ],
+        featured_comments: [
+            { text: "Are you in cahoots with the submitter of the Henry Song? My theory is this is an experiment to see which attracts more ire: a terrible song that follows the letter of the law, or a brilliant song that sticks up two fingers at the law. I'm afraid your conviction that this meets the script seals your fate.", author_name: 'Sin', song_title: 'Woman' },
+            { text: "Always gotta back yourself. I was indeed the direct inspiration for this song. It's basically just my biography", author_name: 'Kate Hitchcock', song_title: 'Kate' },
+            { text: "Henry, my son, I've had a stroke, my Parkinson's is flaring up, and the amputation went horribly wrong. Still, I recorded this song for you anyway", author_name: 'basssbear', song_title: 'Henry My Son' },
+            { text: "I have already decreed that there will be no sex for Ben, but, I do like the song so I'll allow it", author_name: 'Kate Hitchcock', song_title: 'Pimpin\' Benjamin' },
+            { text: "Nah. This deserves a downvote, Neneh Cherry deserves an upvote, but the brief needs nailing. But if this abomination finishes above Nick Cave I'm having a tantrum.", author_name: 'Ben', song_title: 'The Henry Song' },
+            { text: "Do I love this song? It was my number 1 song on Spotify in 2023. Was it on my shortlist for this round? Of course. Does my vexation that you nabbed it first cost you a point? Naturellement.", author_name: 'Sin', song_title: 'Shimmy Shimmy Ya' }
+        ],
+        data_callout: 'JUJU CATASTROPHE: "Woman" scores -4.'
+    },
+    // Round 19: Smoke Gets In Your Eyes
+    {
+        commentary: [],
+        awards: [
+            { label: 'Sob Story 2 of 2', winner: 'basssbear', caption: '"Strangers" by Kenya Grace. 17pts. Career best. Won by 6.' },
+            { label: "RA's Trolljob", winner: 'RA', caption: 'DnB banger in a crying round. "I am so sad when I listen to this song, it makes me cry long time." 9pts. Erica gave it max votes.' },
+            { label: 'The Wedding Song', winner: 'Matt', caption: '"Love Letters" by Lord Cobra. His and Juju\'s wedding song. 6pts, 3 downvotes. Too jolly for a tearjerker round.' },
+            { label: 'The Radiohead Trap', winner: 'Gisele & Juju', caption: '"Everything In Its Right Place" (6pts) and "Analyse" (8pts). Ben: "Lots of teary Radiohead songs but this isn\'t really one."' },
+            { label: 'The 2nd Place Race', winner: 'Juju & Kate', caption: 'Tied at 202. The only race left. One round to decide the runner-up.' }
+        ],
+        featured_comments: [
+            { text: "Upvoting my own miscarriage yay", author_name: 'Kate Hitchcock', song_title: 'Strangers' },
+            { text: "It's nice, it just falls the wrong side of overwrought for me. Come and see me when I've lost a parent, I guess.", author_name: 'Ben', song_title: 'Monsters' },
+            { text: "Well, it was our wedding song so it has me tearing up (from happiness!) every single time I hear it.", author_name: 'Juju', song_title: 'Love Letters' },
+            { text: "I like your moxie for sending up the whole round, but what a waste of a Blade Runner sample.", author_name: 'Ben', song_title: 'Automaton' },
+            { text: "He needs to decide if he wants his space, or wants someone to pull him out of the pool. I guess it's not his fault he sounds like Chris Martin.", author_name: 'Ben', song_title: 'Underwater' }
+        ],
+        data_callout: 'basssbear wins by 6. Early avg 8.6 → late avg 11.3.'
+    },
+    // Round 20: Let's Get Ready to Rumble
+    {
+        commentary: [],
+        awards: [
+            { label: 'The Double', winner: 'basssbear', caption: 'Back-to-back wins (R19 + R20). 32 points in the final two rounds. 9th to 5th. The closing monster.' },
+            { label: 'The Coronation', winner: 'Ghandi El-Chamaa', caption: 'Champion. 232 points. 18 ahead of second place. Mathematically unbeatable before the final round even started.' },
+            { label: 'The Photo Finish', winner: 'Kate Hitchcock', caption: 'Tied with Juju at 202 entering the finale. Kate scored 12, Juju scored 7. Second place decided by a single round.' },
+            { label: 'Le Cleclec Award', winner: 'Le Cleclec', caption: 'Finishes the season in 18th place. 109 points. Dead last. Consistent to the end.' },
+            { label: "Ghandi's Commentary Theatre", winner: 'Ghandi El-Chamaa', caption: 'With the title sewn up, Ghandi spent the finale writing elaborate fight-scene narratives for every single submission. The champion\'s victory lap.' }
+        ],
+        featured_comments: [
+            { text: "I feel like I'm about to be embraced by a psychotropic frog. I enjoy the tune but I'm not sure what type of match you would walk on to with this. An MDMA dance off? Ok now I'm having phantom come down symptoms", author_name: 'Kate Hitchcock', song_title: 'Devilfish' },
+            { text: 'Cracking tune. More an encouragement for getting through constipation than a walk on tune though.', author_name: 'basssbear', song_title: 'Pushin On' },
+            { text: "Oat or dairy milk with your flat white darling? An old friend in the crowd catches your attention, you cuddle furiously then decide to forfeit the fight in favour of a catch up in the stadium cafe. Your fight career is ruined but you went to the discotheque at the end of the night so it didn't matter.", author_name: 'Ghandi El-Chamaa', song_title: 'Heads Will Roll' },
+            { text: "You're Swaggering down toward the ring telling members of the crowd to fuck off for no reason. You enter the ring chewing gum, your opponent looks on murderous, one of the people you told to fuck off was his mum. The bell sounds and he KOs you in the first round with an uppercut that held all the memories of how his mother held him tight at night after a particularly heavy nightmare - it sends you skyward causing you to call out for your own mummy.", author_name: 'Ghandi El-Chamaa', song_title: 'One to Another' },
+            { text: "its an amazing tune, one of my fav throwing snows. and i love the narrative vision. but i just cant get the thought of you taking nearly 5 fucking minutes to walk to the ring. like how slowly are you walking?", author_name: 'basssbear', song_title: 'Recursion' },
+            { text: 'Walkout music... For divorce court!', author_name: 'Kate Hitchcock', song_title: 'Heavyweight Champion of the World' }
+        ],
+        data_callout: 'basssbear wins back-to-back. Ghandi crowned champion: 232pts.'
+    }
+];
+
+// =====================================================
+// COMMENT PROCESSING
+// =====================================================
+function getSpicyCommentsForRound(roundId) {
+    if (!COMMENTS || !COMMENTS.comments) return [];
+    return Object.values(COMMENTS.comments)
+        .filter(c => c.round_id === roundId && c.analysis && c.analysis.is_spicy)
+        .sort((a, b) => Math.abs(b.analysis.sentiment_score) - Math.abs(a.analysis.sentiment_score))
+        .slice(0, 3);
+}
+
+function getBestCommentForRound(roundId) {
+    if (!COMMENTS || !COMMENTS.comments) return null;
+    const candidates = Object.values(COMMENTS.comments)
+        .filter(c => c.round_id === roundId && c.text && c.text.length > 40)
+        .sort((a, b) => {
+            // Prefer spicy, then longest, then most emotional
+            const spicyDiff = (b.analysis?.is_spicy ? 1 : 0) - (a.analysis?.is_spicy ? 1 : 0);
+            if (spicyDiff !== 0) return spicyDiff;
+            return b.text.length - a.text.length;
+        });
+    return candidates[0] || null;
+}
+
+// =====================================================
+// COMPUTED ROUND UTILITIES
+// =====================================================
+function computeRoundStats(roundOrder) {
+    const songs = DATA.songs.filter(s => s.round_order === roundOrder);
+    if (songs.length === 0) return null;
+
+    // Genre frequency map
+    const genreMap = {};
+    songs.forEach(s => {
+        (s.enrichment?.genres || []).forEach(g => {
+            genreMap[g] = (genreMap[g] || 0) + 1;
+        });
+    });
+    const topGenres = Object.entries(genreMap).sort((a, b) => b[1] - a[1]);
+
+    // Year stats (parse and filter to valid release years only)
+    const years = songs.map(s => parseInt(s.enrichment?.year)).filter(y => y && y > 1900 && y <= 2030);
+    const avgYear = years.length > 0 ? Math.round(years.reduce((a, b) => a + b, 0) / years.length) : null;
+    const minYear = years.length > 0 ? Math.min(...years) : null;
+    const maxYear = years.length > 0 ? Math.max(...years) : null;
+    const oldestSong = minYear ? songs.find(s => parseInt(s.enrichment?.year) === minYear) : null;
+    const newestSong = maxYear ? songs.find(s => parseInt(s.enrichment?.year) === maxYear) : null;
+    const yearSpread = years.length >= 2 ? Math.max(...years) - Math.min(...years) : 0;
+
+    // Vote stats
+    const totalNegVotes = songs.reduce((sum, s) => sum + (s.negative_votes || 0), 0);
+    const avgScore = songs.reduce((sum, s) => sum + s.total_score, 0) / songs.length;
+    const maxVariance = Math.max(...songs.map(s => s.vote_variance || 0));
+    const scores = songs.map(s => s.total_score);
+    const scoreSpread = Math.max(...scores) - Math.min(...scores);
+
+    // Most controversial song
+    const mostControversial = [...songs].sort((a, b) => (b.vote_variance || 0) - (a.vote_variance || 0))[0];
+
+    return {
+        genreMap, topGenres, avgYear, oldestSong, newestSong, yearSpread,
+        minYear, maxYear,
+        totalNegVotes, avgScore, maxVariance, scoreSpread, mostControversial,
+        songCount: songs.length
+    };
+}
+
+function generateFunFacts(roundOrder) {
+    const stats = computeRoundStats(roundOrder);
+    if (!stats) return [];
+
+    const facts = [];
+
+    // Average score
+    if (stats.avgScore !== null) {
+        facts.push({ text: `avg score: ${stats.avgScore.toFixed(1)}pts`, priority: 2 });
+    }
+
+    // Average release year
+    if (stats.avgYear) {
+        facts.push({ text: `avg release year: ${stats.avgYear}`, priority: 3 });
+    }
+
+    // Year spread
+    if (stats.yearSpread > 20) {
+        facts.push({ text: `${stats.yearSpread} years between oldest & newest`, priority: 4 });
+    }
+
+    // Oldest song
+    if (stats.oldestSong && stats.minYear) {
+        facts.push({ text: `oldest: ${stats.minYear} (${stats.oldestSong.artist})`, priority: 3 });
+    }
+
+    // Top genre
+    if (stats.topGenres.length > 0) {
+        const [genre, count] = stats.topGenres[0];
+        facts.push({ text: `${count}× ${genre}`, priority: 4 });
+    }
+
+    // Score spread
+    if (stats.scoreSpread > 15) {
+        facts.push({ text: `${stats.scoreSpread}pt spread`, priority: 3 });
+    }
+
+    // Most divisive
+    if (stats.mostControversial && stats.mostControversial.vote_variance > 2) {
+        facts.push({ text: `most divisive: "${stats.mostControversial.title}"`, priority: 4 });
+    }
+
+    // Sort by priority descending then pick top 4, varying by round
+    facts.sort((a, b) => b.priority - a.priority);
+    // Offset selection by round to vary which facts show
+    const offset = roundOrder % 2;
+    const selected = facts.slice(offset, offset + 4);
+    return selected.length >= 2 ? selected.map(f => f.text) : facts.slice(0, 3).map(f => f.text);
+}
+
+function getTopCommentsForRound(roundId, count = 3) {
+    if (!COMMENTS || !COMMENTS.comments) return [];
+
+    const candidates = Object.values(COMMENTS.comments)
+        .filter(c => c.round_id === roundId && c.text && c.text.length > 30);
+
+    // Score each comment
+    const scored = candidates.map(c => {
+        let score = 0;
+        const analysis = c.analysis || {};
+
+        // Humor/snark bonus
+        if (analysis.emotion === 'humor') score += 5;
+        if (analysis.emotion === 'snark' || analysis.emotion === 'sarcasm') score += 4;
+
+        // Spicy bonus
+        if (analysis.is_spicy) score += 2;
+
+        // Moderate length bonus (50-300 chars)
+        if (c.text.length >= 50 && c.text.length <= 300) score += 3;
+
+        // Strong sentiment bonus
+        if (analysis.sentiment_score) score += Math.abs(analysis.sentiment_score) * 2;
+
+        // Vote comments over submission comments
+        if (c.type === 'vote') score += 1;
+
+        return { ...c, _score: score };
+    });
+
+    // Sort by score descending
+    scored.sort((a, b) => b._score - a._score);
+
+    // Deduplicate by author (max 1 per person)
+    const seen = new Set();
+    const result = [];
+    for (const c of scored) {
+        if (seen.has(c.author_name)) continue;
+        seen.add(c.author_name);
+        result.push(c);
+        if (result.length >= count) break;
+    }
+
+    return result;
+}
+
+// =====================================================
+// RACE CHART RENDERER
+// =====================================================
+function getHighlightedPlayersForRound(roundIdx) {
+    const highlighted = new Set();
+
+    // Top 5 by cumulative points at this round
+    const rt = DATA.rankings_timeline[roundIdx];
+    if (rt) {
+        const ranked = Object.entries(rt.rankings)
+            .sort((a, b) => a[1].rank - b[1].rank);
+        ranked.slice(0, 5).forEach(([pid]) => highlighted.add(pid));
+    }
+
+    // Players involved in lead changes at or near this round (±1)
+    DATA.lead_changes.forEach(lc => {
+        if (Math.abs(lc.round_order - roundIdx) <= 1) {
+            if (lc.new_leader_id) highlighted.add(lc.new_leader_id);
+            if (lc.prev_leader_id) highlighted.add(lc.prev_leader_id);
+        }
+    });
+
+    // Round winner
+    const roundSongs = DATA.songs.filter(s => s.round_order === roundIdx);
+    if (roundSongs.length > 0) {
+        const winner = roundSongs.reduce((best, s) => s.total_score > best.total_score ? s : best);
+        highlighted.add(winner.submitter_id);
+    }
+
+    return [...highlighted];
+}
+
+let raceChartState = {
+    svg: null,
+    scales: null,
+    lines: null,
+    dots: null,
+    labels: null,
+    leadChangeMarkers: null,
+    roundIndicator: null,
+    maxRound: 0
+};
+
+function initRaceChart() {
+    const container = $('#raceStickyChart');
+    const svg = d3.select('#raceSvg');
+    const isMobile = window.innerWidth < 768;
+
+    const margin = { top: 20, right: isMobile ? 50 : 90, bottom: 25, left: 30 };
+    const width = container.clientWidth - margin.left - margin.right;
+    const height = container.clientHeight - margin.top - margin.bottom;
+
+    svg.selectAll('*').remove();
+
+    const g = svg.append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`);
+
+    const timeline = DATA.rankings_timeline;
+    const playerCount = DATA.players.length;
+
+    // X scale: round order
+    const x = d3.scaleLinear()
+        .domain([0, timeline.length - 1])
+        .range([0, width]);
+
+    // Y scale: rank (1 at top, 18 at bottom)
+    const y = d3.scaleLinear()
+        .domain([1, playerCount])
+        .range([0, height]);
+
+    // X axis (round numbers)
+    const xAxis = g.append('g')
+        .attr('transform', `translate(0,${height})`)
+        .call(d3.axisBottom(x)
+            .ticks(isMobile ? 5 : 20)
+            .tickFormat(d => `R${d + 1}`)
+            .tickSize(-height)
+        );
+
+    xAxis.selectAll('line')
+        .attr('stroke', 'var(--border)')
+        .attr('stroke-dasharray', '2,4');
+    xAxis.selectAll('text')
+        .attr('font-size', '9px')
+        .attr('fill', 'var(--muted)');
+    xAxis.select('.domain').remove();
+
+    // Build line data per player
+    const playerLines = {};
+    DATA.players.forEach(p => {
+        playerLines[p.id] = [];
+    });
+
+    timeline.forEach((rt, roundIdx) => {
+        Object.entries(rt.rankings).forEach(([pid, info]) => {
+            if (playerLines[pid]) {
+                playerLines[pid].push({
+                    round: roundIdx,
+                    rank: info.rank,
+                    name: info.name,
+                    pts: info.cumulative_points,
+                    pid: pid
+                });
+            }
+        });
+    });
+
+    // Line generator
+    const line = d3.line()
+        .x(d => x(d.round))
+        .y(d => y(d.rank))
+        .curve(d3.curveMonotoneX);
+
+    // Draw lines (initially hidden)
+    const lines = {};
+    const dotGroups = {};
+    const labels = {};
+
+    const initialHighlighted = getHighlightedPlayersForRound(0);
+
+    Object.entries(playerLines).forEach(([pid, data]) => {
+        if (data.length === 0) return;
+
+        const isHighlighted = initialHighlighted.includes(pid);
+        const color = PLAYER_COLORS[pid] || '#555';
+
+        // Line
+        lines[pid] = g.append('path')
+            .datum(data)
+            .attr('class', 'race-line')
+            .attr('d', line)
+            .attr('stroke', color)
+            .attr('opacity', isHighlighted ? 0.8 : 0.12)
+            .attr('stroke-width', isHighlighted ? 2.5 : 1);
+
+        // Dots
+        dotGroups[pid] = g.selectAll(`.dot-${pid.slice(0, 8)}`)
+            .data(data)
+            .enter()
+            .append('circle')
+            .attr('class', `race-dot`)
+            .attr('cx', d => x(d.round))
+            .attr('cy', d => y(d.rank))
+            .attr('r', isHighlighted ? 3 : 1.5)
+            .attr('fill', color)
+            .attr('opacity', isHighlighted ? 0.9 : 0.12)
+            .on('mouseover', function(event, d) {
+                showTooltip(event, `<strong>${d.name}</strong><br>#${d.rank} — ${d.pts}pts`);
+            })
+            .on('mousemove', function(event) {
+                showTooltip(event, $('#tooltip').innerHTML);
+            })
+            .on('mouseout', hideTooltip);
+
+        // Create labels for more players so dynamic highlighting can reveal them
+        const lastPt = data[data.length - 1];
+        const labelThreshold = isMobile ? 6 : 14;
+        if (lastPt.rank <= labelThreshold) {
+            labels[pid] = g.append('text')
+                .attr('class', `race-label ${isHighlighted ? 'highlight' : ''}`)
+                .attr('x', x(lastPt.round) + 8)
+                .attr('y', y(lastPt.rank))
+                .attr('dy', '0.35em')
+                .attr('fill', isHighlighted ? color : 'var(--muted)')
+                .attr('font-size', isHighlighted ? (isMobile ? '9px' : '11px') : (isMobile ? '7px' : '9px'))
+                .attr('opacity', isHighlighted ? 1 : 0.3)
+                .text(lastPt.name.split(' ')[0]); // First name only
+        }
+    });
+
+    // Lead change markers
+    const leadChangeMarkers = g.selectAll('.lead-change-marker')
+        .data(DATA.lead_changes)
+        .enter()
+        .append('g')
+        .attr('class', 'lead-change-marker')
+        .attr('opacity', 0);
+
+    leadChangeMarkers.append('path')
+        .attr('d', d3.symbol().type(d3.symbolDiamond).size(80))
+        .attr('transform', d => {
+            const roundIdx = d.round_order;
+            // Find the new leader's rank at this round
+            const rt = timeline[roundIdx];
+            const leaderRank = rt ? (Object.values(rt.rankings).find(r => r.name === d.new_leader)?.rank || 1) : 1;
+            return `translate(${x(roundIdx)},${y(leaderRank)})`;
+        })
+        .attr('fill', d => PLAYER_COLORS[d.new_leader_id] || 'var(--accent)')
+        .attr('stroke', 'var(--bg)')
+        .attr('stroke-width', 1.5);
+
+    // Round indicator line
+    const roundIndicator = g.append('line')
+        .attr('class', 'race-round-indicator')
+        .attr('y1', 0)
+        .attr('y2', height)
+        .attr('opacity', 0);
+
+    raceChartState = {
+        svg, g, scales: { x, y }, lines, dotGroups, labels,
+        leadChangeMarkers, roundIndicator, timeline,
+        playerLines, line, width, height, margin, playerCount
+    };
+}
+
+function updateRaceToRound(roundIdx) {
+    if (!raceChartState.svg) return;
+    if (roundIdx === raceChartState.maxRound) return;
+
+    const { scales, lines, dotGroups, labels, leadChangeMarkers,
+            roundIndicator, timeline, playerLines, line } = raceChartState;
+    const { x, y } = scales;
+
+    raceChartState.maxRound = roundIdx;
+
+    const highlightedIds = getHighlightedPlayersForRound(roundIdx);
+
+    // Update lines: clip to current round + dynamic opacity
+    Object.entries(playerLines).forEach(([pid, data]) => {
+        if (!lines[pid]) return;
+        const clipped = data.filter(d => d.round <= roundIdx);
+        const isHighlighted = highlightedIds.includes(pid);
+        lines[pid]
+            .datum(clipped)
+            .transition()
+            .duration(400)
+            .attr('d', line)
+            .attr('opacity', isHighlighted ? 0.8 : 0.12)
+            .attr('stroke-width', isHighlighted ? 2.5 : 1);
+    });
+
+    // Update dots: show only up to current round + dynamic opacity
+    Object.entries(dotGroups).forEach(([pid, dots]) => {
+        const isHighlighted = highlightedIds.includes(pid);
+        dots.transition()
+            .duration(300)
+            .attr('opacity', function(d) {
+                if (d.round > roundIdx) return 0;
+                return isHighlighted ? 0.9 : 0.12;
+            })
+            .attr('r', isHighlighted ? 3 : 1.5);
+    });
+
+    // Update labels: position at current round + dynamic visibility
+    Object.entries(labels).forEach(([pid, label]) => {
+        const data = playerLines[pid];
+        const currentData = data.filter(d => d.round <= roundIdx);
+        const isHighlighted = highlightedIds.includes(pid);
+        if (currentData.length > 0) {
+            const last = currentData[currentData.length - 1];
+            const color = PLAYER_COLORS[pid] || 'var(--muted)';
+            label
+                .transition()
+                .duration(400)
+                .attr('x', x(last.round) + 8)
+                .attr('y', y(last.rank))
+                .attr('opacity', isHighlighted ? 1 : 0.3)
+                .attr('fill', isHighlighted ? color : 'var(--muted)')
+                .attr('font-size', isHighlighted ? '11px' : '9px');
+        }
+    });
+
+    // Show lead change markers up to this round
+    leadChangeMarkers
+        .transition()
+        .duration(300)
+        .attr('opacity', d => d.round_order <= roundIdx ? 1 : 0);
+
+    // Update round indicator
+    roundIndicator
+        .attr('x1', x(roundIdx))
+        .attr('x2', x(roundIdx))
+        .transition()
+        .duration(300)
+        .attr('opacity', 0.5);
+}
+
+// =====================================================
+// SCORECARD RENDERER (per round)
+// =====================================================
+function renderScorecard(container, roundOrder) {
+    const songs = DATA.songs.filter(s => s.round_order === roundOrder);
+    if (songs.length === 0) return;
+
+    songs.sort((a, b) => a.total_score - b.total_score);
+    const round = DATA.rounds[roundOrder];
+
+    const width = container.clientWidth;
+    const height = 80;
+    const svg = d3.select(container).append('svg')
+        .attr('width', width)
+        .attr('height', height);
+
+    const margin = { left: 10, right: 10, top: 15, bottom: 15 };
+    const plotW = width - margin.left - margin.right;
+    const plotH = height - margin.top - margin.bottom;
+
+    const g = svg.append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`);
+
+    const minScore = d3.min(songs, d => d.total_score);
+    const maxScore = d3.max(songs, d => d.total_score);
+
+    const x = d3.scaleLinear()
+        .domain([Math.min(minScore, 0), maxScore])
+        .range([0, plotW]);
+
+    // Axis line
+    g.append('line')
+        .attr('x1', 0).attr('x2', plotW)
+        .attr('y1', plotH / 2).attr('y2', plotH / 2)
+        .attr('stroke', 'var(--border)')
+        .attr('stroke-width', 1);
+
+    // Score ticks
+    const ticks = x.ticks(5);
+    ticks.forEach(t => {
+        g.append('text')
+            .attr('x', x(t))
+            .attr('y', plotH / 2 + 18)
+            .attr('text-anchor', 'middle')
+            .attr('font-size', '8px')
+            .attr('fill', 'var(--muted)')
+            .attr('font-family', 'var(--font-mono)')
+            .text(t);
+    });
+
+    // Dots
+    const winnerScore = round.winner.score;
+    const mostControv = round.most_controversial;
+
+    songs.forEach((s, i) => {
+        const isWinner = s.total_score === winnerScore && s.submitter_name === round.winner.submitter_name;
+        const isControv = mostControv && s.title === mostControv.title;
+
+        const dot = g.append('circle')
+            .attr('cx', x(s.total_score))
+            .attr('cy', plotH / 2 + (i % 2 === 0 ? -4 : 4) * (1 + Math.random() * 0.5))
+            .attr('r', isWinner ? 6 : 3.5)
+            .attr('fill', isWinner ? 'var(--accent)' : PLAYER_COLORS[s.submitter_id] || '#555')
+            .attr('opacity', isWinner ? 1 : 0.6)
+            .attr('stroke', isControv ? '#e06c75' : 'none')
+            .attr('stroke-width', isControv ? 2 : 0)
+            .style('cursor', 'pointer');
+
+        dot.on('mouseover', function(event) {
+            showTooltip(event, `<strong>${s.title}</strong><br>${s.submitter_name} — ${s.total_score}pts`);
+        })
+        .on('mousemove', function(event) {
+            showTooltip(event, $('#tooltip').innerHTML);
+        })
+        .on('mouseout', hideTooltip);
+
+        // Winner label
+        if (isWinner) {
+            g.append('text')
+                .attr('x', x(s.total_score))
+                .attr('y', plotH / 2 - 14)
+                .attr('text-anchor', 'middle')
+                .attr('font-size', '9px')
+                .attr('fill', 'var(--accent)')
+                .attr('font-family', 'var(--font-mono)')
+                .text(`${s.total_score}pts`);
+        }
+    });
+}
+
+// =====================================================
+// CHAPTER RENDERER
+// =====================================================
+function renderChapters() {
+    const chaptersDiv = $('#chapters');
+    chaptersDiv.innerHTML = '';
+
+    DATA.rounds.forEach((round, i) => {
+        const narrative = ROUND_NARRATIVES[i];
+        if (!narrative) return;
+
+        const section = document.createElement('section');
+        section.className = 'chapter';
+        section.id = `round-${i + 1}`;
+        section.dataset.round = i;
+
+        const leadChange = DATA.lead_changes.find(lc => lc.round_order === i);
+
+        // Multiple full-length comments
+        const topComments = narrative.featured_comments || getTopCommentsForRound(round.id, 3);
+        const commentHtml = topComments.map(c => `
+            <div class="comment-spotlight fade-in">
+                <div class="comment-text">"${c.text}"</div>
+                <div class="comment-attr">— ${c.author_name} on "${c.song_title}"</div>
+            </div>`).join('');
+
+        let leadChangeHtml = '';
+        if (leadChange) {
+            leadChangeHtml = `
+                <div class="lead-change-callout fade-in">
+                    <div class="lead-change-icon">&#9670;</div>
+                    <div class="lead-change-text">
+                        <strong>Lead Change:</strong> ${leadChange.new_leader} overtakes ${leadChange.prev_leader || 'the field'}
+                    </div>
+                </div>`;
+        }
+
+        // Fun fact chips
+        const funFacts = generateFunFacts(i);
+        const funFactHtml = funFacts.length > 0
+            ? `<div class="fun-fact-chips fade-in">${funFacts.map(f => `<span class="fun-fact-chip">${f}</span>`).join('')}</div>`
+            : '';
+
+        // Data insight paragraph
+        const stats = computeRoundStats(i);
+        let dataInsightHtml = '';
+        if (stats) {
+            const insights = [];
+            if (stats.avgYear) {
+                if (stats.yearSpread > 10 && stats.minYear && stats.maxYear) {
+                    insights.push(`Submissions spanned ${stats.yearSpread} years (${stats.minYear}–${stats.maxYear}), averaging ${stats.avgYear}`);
+                } else {
+                    insights.push(`Average release year: ${stats.avgYear}`);
+                }
+            }
+            if (stats.topGenres.length > 1) {
+                const top3 = stats.topGenres.slice(0, 3).map(([g, c]) => `${g} (${c})`).join(', ');
+                insights.push(`Genre spread: ${top3}`);
+            }
+            if (insights.length > 0) {
+                dataInsightHtml = `<p class="data-insight fade-in">${insights.join('. ')}.</p>`;
+            }
+        }
+
+        section.innerHTML = `
+            <div class="chapter-inner">
+                <div class="chapter-header fade-in">
+                    <div class="chapter-round-num">Round ${i + 1} of 20</div>
+                    <h2 class="chapter-title">${round.name}</h2>
+                    <div class="chapter-theme">${round.description || ''}</div>
+                </div>
+
+                <div class="chapter-winner fade-in">
+                    <span class="winner-label">Winner</span>
+                    <span class="winner-name">${round.winner.submitter_name}</span>
+                    <span class="winner-score">${round.winner.score}pts</span>
+                    <span class="winner-song">"${round.winner.title}" — ${round.winner.artist}</span>
+                </div>
+
+                ${leadChangeHtml}
+
+                <div class="chapter-narrative fade-in">
+                    ${narrative.commentary.map(p => `<p>${p}</p>`).join('')}
+                </div>
+
+                ${narrative.awards ? `<div class="round-awards fade-in">${narrative.awards.map(a => `
+                    <div class="round-award">
+                        <div class="round-award-label">${a.label}</div>
+                        <div class="round-award-winner">${a.winner}</div>
+                        <div class="round-award-caption">${a.caption}</div>
+                    </div>`).join('')}</div>` : ''}
+
+                ${narrative.micro_viz ? (() => {
+                    const viz = narrative.micro_viz;
+                    const maxVal = Math.max(...viz.bars.map(b => typeof b.value === 'number' ? Math.sqrt(b.value + 1) : 0));
+                    return `<div class="micro-viz fade-in">
+                        <div class="micro-viz-title">${viz.title}</div>
+                        ${viz.bars.map(b => {
+                            const w = typeof b.value === 'number' ? Math.round((Math.sqrt(b.value + 1) / maxVal) * 100) : 0;
+                            const display = typeof b.value === 'number' ? (b.value % 1 !== 0 ? b.value : b.value.toLocaleString()) : b.value;
+                            return `<div class="micro-viz-row">
+                                <div class="micro-viz-label" title="${b.label}">${b.label}</div>
+                                <div class="micro-viz-bar-track">
+                                    <div class="micro-viz-bar" style="width:${w}%"></div>
+                                </div>
+                                <div class="micro-viz-value">${display}</div>
+                                ${b.note ? `<div class="micro-viz-note">${b.note}</div>` : ''}
+                            </div>`;
+                        }).join('')}
+                    </div>`;
+                })() : ''}
+
+                ${dataInsightHtml}
+
+                <div class="data-callout fade-in">${narrative.data_callout}</div>
+
+                <div class="scorecard fade-in" id="scorecard-${i}">
+                    <div class="scorecard-label">Round ${i + 1} submissions by score</div>
+                </div>
+
+                ${commentHtml}
+
+                ${funFactHtml}
+            </div>
+        `;
+
+        chaptersDiv.appendChild(section);
+
+        // Insert interstitial analytics sections after specific rounds
+        const interstitialMap = {
+            2: { id: 'interstitial-feuds', title: 'Feuds &<br><span class="accent">Friendships</span>', subtitle: 'Who loved whom — and who held grudges' },
+            5: { id: 'interstitial-tactical', title: 'Tactical<br><span class="accent">Voting</span>', subtitle: 'The most contrarian, crowd-pleasing, and hipster votes' },
+            9: { id: 'interstitial-popularity', title: 'Popularity vs<br><span class="accent">Reality</span>', subtitle: 'Did fame help or hurt?' },
+            12: { id: 'interstitial-year', title: 'Release Year vs<br><span class="accent">Score</span>', subtitle: 'Does the league prefer old or new?' },
+            15: { id: 'interstitial-genre', title: 'Genre<br><span class="accent">Performance</span>', subtitle: 'Which genres scored highest?' },
+            17: { id: 'interstitial-decade', title: 'The Decade<br><span class="accent">Machine</span>', subtitle: 'Which era does each player live in?' }
+        };
+
+        if (interstitialMap[i]) {
+            const info = interstitialMap[i];
+            const interstitial = document.createElement('section');
+            interstitial.className = 'interstitial fade-in';
+            interstitial.id = info.id;
+            interstitial.innerHTML = `
+                <div class="interstitial-inner">
+                    <h2 class="interstitial-title">${info.title}</h2>
+                    <p class="interstitial-subtitle">${info.subtitle}</p>
+                </div>
+            `;
+            chaptersDiv.appendChild(interstitial);
+        }
+    });
+}
+
+// =====================================================
+// PROLOGUE RENDERER
+// =====================================================
+function renderPrologue() {
+    const content = $('#prologueContent');
+
+    content.innerHTML = `
+        <h1 class="story-title fade-in">FML II:<br><span class="accent">A retrospective</span></h1>
+        <div class="hero-stats fade-in">
+            <div class="hero-stat">
+                <div class="hero-stat-number">20</div>
+                <div class="hero-stat-label">chapters</div>
+            </div>
+            <div class="hero-stat">
+                <div class="hero-stat-number">7</div>
+                <div class="hero-stat-label">lead changes</div>
+            </div>
+            <div class="hero-stat">
+                <div class="hero-stat-number">1</div>
+                <div class="hero-stat-label">champion</div>
+            </div>
+            <div class="hero-stat">
+                <div class="hero-stat-number">?</div>
+                <div class="hero-stat-label">questionable taste throughout</div>
+            </div>
+        </div>
+
+        <p style="font-size: var(--text-sm); color: var(--muted); margin-top: var(--space-xl); text-align: center;" class="fade-in">Scroll down to begin &darr;</p>
+    `;
+}
+
+// =====================================================
+// EPILOGUE RENDERER
+// =====================================================
+function slugifyName(name) {
+    return name.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-');
+}
+
+function renderEpilogue() {
+    const content = $('#epilogueContent');
+    const players = [...DATA.players].sort((a, b) => b.total_points_received - a.total_points_received);
+
+    const standingsHtml = players.map((p, i) => `
+        <div class="standing-row">
+            <span class="standing-rank">#${i + 1}</span>
+            <a href="reports/player_${slugifyName(p.name)}.html">
+                <span class="standing-name ${i === 0 ? 'champion' : ''}">${p.name}</span>
+                <span class="standing-pts">${p.total_points_received}pts</span>
+                <span class="standing-link">View report</span>
+            </a>
+        </div>
+    `).join('');
+
+    // Build awards HTML inline so it's part of the initial render
+    const awardsHtml = buildAwardsHtml();
+
+    content.innerHTML = `
+        <h2 class="epilogue-title fade-in">Final<br><span class="accent">Standings</span></h2>
+
+        <div class="final-race-chart fade-in" id="finalRaceChart"></div>
+
+        <div class="final-standings fade-in">
+            ${standingsHtml}
+        </div>
+
+        <h2 class="superlatives-heading fade-in">Awards<br><span class="accent">Ceremony</span></h2>
+
+        <div class="awards-grid">
+            ${awardsHtml}
+        </div>
+    `;
+}
+
+// =====================================================
+// AWARDS CEREMONY (ported from index.html)
+// =====================================================
+function buildAwardsHtml() {
+    const awards = DATA.awards;
+    const players = DATA.players;
+    if (!awards) return '';
+
+    // League stats for comparison bars
+    const leagueStats = {
+        totalPoints: players.map(p => p.total_points_received),
+        avgVoteGiven: players.map(p => p.avg_vote_given),
+        scoreVariance: players.map(p => p.score_variance),
+        uniqueArtists: players.map(p => p.unique_artists),
+        consensus: players.map(p => p.consensus_correlation),
+        lateAvg: players.map(p => p.late_avg),
+        improvement: players.map(p => p.improvement)
+    };
+
+    const avg = arr => arr.reduce((a, b) => a + b, 0) / arr.length;
+    const max = arr => Math.max(...arr);
+    const min = arr => Math.min(...arr);
+
+    const taglines = {
+        'juggernaut': 'Ruled the league', 'critic': 'Hard to please', 'cheerleader': 'Spreads the love',
+        'one_hit_wonder': 'Lightning in a bottle', 'consistent': 'Steady as she goes',
+        'wildcard': 'Expect the unexpected', 'hipster': "You wouldn't know them",
+        'crowd_pleaser': 'Follows the herd', 'introducer': 'Fresh sounds only',
+        'soulmates': 'Two peas in a pod', 'clutch': 'Peaks when it counts',
+        'slow_starter': 'Better late than never', 'unanimous_banger': 'Everyone agreed',
+        'marmite': 'Love it or hate it', 'hidden_gem': 'Cult classic status'
+    };
+
+    const chartConfigs = {
+        'juggernaut': { getWinner: a => a.value, getAvg: () => avg(leagueStats.totalPoints), getMax: () => max(leagueStats.totalPoints), winnerLabel: a => `${a.value} pts`, avgLabel: () => `avg ${Math.round(avg(leagueStats.totalPoints))}`, higher: true },
+        'critic': { getWinner: a => a.value, getAvg: () => avg(leagueStats.avgVoteGiven), getMax: () => max(leagueStats.avgVoteGiven), getMin: () => min(leagueStats.avgVoteGiven), winnerLabel: a => `${a.value.toFixed(2)}`, avgLabel: () => `avg ${avg(leagueStats.avgVoteGiven).toFixed(2)}`, higher: false },
+        'cheerleader': { getWinner: a => a.value, getAvg: () => avg(leagueStats.avgVoteGiven), getMax: () => max(leagueStats.avgVoteGiven), winnerLabel: a => `${a.value.toFixed(2)}`, avgLabel: () => `avg ${avg(leagueStats.avgVoteGiven).toFixed(2)}`, higher: true },
+        'one_hit_wonder': { getWinner: a => a.value, getAvg: () => 0, getMax: a => a.value * 1.2, winnerLabel: a => `+${a.value.toFixed(1)} above avg`, avgLabel: () => `baseline`, higher: true },
+        'consistent': { getWinner: a => a.value, getAvg: () => avg(leagueStats.scoreVariance), getMax: () => max(leagueStats.scoreVariance), getMin: () => min(leagueStats.scoreVariance), winnerLabel: a => `${a.value.toFixed(2)} std`, avgLabel: () => `avg ${avg(leagueStats.scoreVariance).toFixed(2)}`, higher: false },
+        'wildcard': { getWinner: a => a.value, getAvg: () => avg(leagueStats.scoreVariance), getMax: () => max(leagueStats.scoreVariance), winnerLabel: a => `${a.value.toFixed(2)} std`, avgLabel: () => `avg ${avg(leagueStats.scoreVariance).toFixed(2)}`, higher: true },
+        'hipster': { getWinner: a => a.value, getAvg: () => avg(leagueStats.consensus), getMax: () => max(leagueStats.consensus), getMin: () => min(leagueStats.consensus), winnerLabel: a => `${a.value.toFixed(3)}`, avgLabel: () => `avg ${avg(leagueStats.consensus).toFixed(3)}`, higher: false },
+        'crowd_pleaser': { getWinner: a => a.value, getAvg: () => avg(leagueStats.consensus), getMax: () => max(leagueStats.consensus), winnerLabel: a => `${a.value.toFixed(3)}`, avgLabel: () => `avg ${avg(leagueStats.consensus).toFixed(3)}`, higher: true },
+        'introducer': { getWinner: a => a.value, getAvg: () => avg(leagueStats.uniqueArtists), getMax: () => max(leagueStats.uniqueArtists), winnerLabel: a => `${a.value} artists`, avgLabel: () => `avg ${Math.round(avg(leagueStats.uniqueArtists))}`, higher: true },
+        'soulmates': { getWinner: a => a.value, getAvg: () => 0, getMax: () => 1, winnerLabel: a => `${(a.value * 100).toFixed(0)}% match`, avgLabel: () => `0%`, higher: true },
+        'clutch': { getWinner: a => a.value, getAvg: () => avg(leagueStats.lateAvg), getMax: () => max(leagueStats.lateAvg), winnerLabel: a => `${a.value.toFixed(1)} avg`, avgLabel: () => `avg ${avg(leagueStats.lateAvg).toFixed(1)}`, higher: true },
+        'slow_starter': { getWinner: a => a.value, getAvg: () => avg(leagueStats.improvement.filter(i => i > 0)), getMax: () => max(leagueStats.improvement), winnerLabel: a => `+${a.value.toFixed(1)}`, avgLabel: () => `avg improvement`, higher: true },
+        'unanimous_banger': { getWinner: a => a.value, getAvg: () => 0, getMax: () => 100, winnerLabel: a => `${a.value.toFixed(0)}%`, avgLabel: () => `0%`, higher: true },
+        'marmite': { getWinner: a => a.variance, getAvg: () => avg(leagueStats.scoreVariance), getMax: () => max(leagueStats.scoreVariance) * 1.5, winnerLabel: a => `${a.variance.toFixed(2)} var`, avgLabel: () => `avg song var`, higher: true },
+        'hidden_gem': { getWinner: a => a.max_votes, getAvg: () => 0, getMax: a => a.max_votes * 2, winnerLabel: a => `${a.max_votes} defenders`, avgLabel: () => `despite low avg`, higher: true }
+    };
+
+    function generateBarChart(key, award) {
+        const config = chartConfigs[key];
+        if (!config || !award) return '';
+        const winnerVal = config.getWinner(award);
+        const avgVal = config.getAvg();
+        const maxVal = typeof config.getMax === 'function' ? config.getMax(award) : config.getMax;
+        const minVal = config.getMin ? config.getMin() : 0;
+        const range = maxVal - minVal;
+        const winnerPct = Math.min(100, Math.max(5, ((winnerVal - minVal) / range) * 100));
+        const avgPct = Math.min(100, Math.max(0, ((avgVal - minVal) / range) * 100));
+        return `
+            <div class="award-chart">
+                <div class="award-bar-container">
+                    <div class="award-bar-avg" style="width: ${avgPct}%"></div>
+                    <div class="award-bar-winner" style="width: ${winnerPct}%"></div>
+                </div>
+                <div class="award-bar-labels">
+                    <span class="award-bar-label-winner">${config.winnerLabel(award)}</span>
+                    <span>${config.avgLabel()}</span>
+                </div>
+            </div>
+        `;
+    }
+
+    const awardDefs = [
+        { key: 'juggernaut', title: 'The Juggernaut', category: 'Player Award' },
+        { key: 'critic', title: 'The Critic', category: 'Player Award' },
+        { key: 'cheerleader', title: 'The Cheerleader', category: 'Player Award' },
+        { key: 'one_hit_wonder', title: 'One Hit Wonder', category: 'Player Award' },
+        { key: 'consistent', title: 'Mr/Ms Consistent', category: 'Player Award' },
+        { key: 'wildcard', title: 'The Wildcard', category: 'Player Award' },
+        { key: 'hipster', title: 'The Hipster', category: 'Voting Award' },
+        { key: 'crowd_pleaser', title: 'Crowd Pleaser', category: 'Voting Award' },
+        { key: 'introducer', title: 'The Introducer', category: 'Player Award' },
+        { key: 'soulmates', title: 'Musical Soulmates', category: 'Special Award', customWinner: a => `${a.player1} & ${a.player2}` },
+        { key: 'clutch', title: 'Clutch Player', category: 'Player Award' },
+        { key: 'slow_starter', title: 'Slow Starter', category: 'Player Award' },
+        { key: 'unanimous_banger', title: 'Unanimous Banger', category: 'Song Award', customWinner: a => `"${a.title}" – ${a.submitter}` },
+        { key: 'marmite', title: 'The Marmite', category: 'Song Award', customWinner: a => `"${a.title}" – ${a.submitter}` },
+        { key: 'hidden_gem', title: 'Hidden Gem', category: 'Song Award', customWinner: a => `"${a.title}" – ${a.submitter}` }
+    ];
+
+    return awardDefs
+        .filter(def => awards[def.key])
+        .map(def => {
+            try {
+                const award = awards[def.key];
+                const winner = def.customWinner ? def.customWinner(award) : (award.name || '');
+                const tagline = taglines[def.key] || '';
+                const barChart = generateBarChart(def.key, award);
+                return `
+                    <div class="award-card fade-in">
+                        <div class="award-category">${def.category}</div>
+                        <div class="award-title">${def.title}</div>
+                        <div class="award-winner">${winner}</div>
+                        <div class="award-tagline">"${tagline}"</div>
+                        ${barChart}
+                    </div>
+                `;
+            } catch (e) {
+                console.error('Award render error for', def.key, e);
+                return '';
+            }
+        }).join('');
+}
+
+// =====================================================
+// UTILITY FUNCTIONS (ported from index.html)
+// =====================================================
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function getTemperatureLabel(score) {
+    if (score <= -0.3) return { label: 'Frigid', class: 'frigid', icon: '🥶' };
+    if (score <= 0) return { label: 'Ice Cold', class: 'ice-cold', icon: '❄️' };
+    if (score <= 0.3) return { label: 'Cold', class: 'cold', icon: '🧊' };
+    if (score <= 0.6) return { label: 'Cool', class: 'cool', icon: '💨' };
+    if (score <= 1.0) return { label: 'Chilly', class: 'chilly', icon: '🌡️' };
+    if (score <= 1.5) return { label: 'Warm', class: 'warm', icon: '☀️' };
+    return { label: 'Hot', class: 'hot', icon: '🔥' };
+}
+
+const GENRE_CATEGORY_COLORS = {
+    rock: '#e74c3c', alternative: '#c0392b', indie: '#d35400', metal: '#922b21', punk: '#cb4335',
+    electronic: '#3498db', dance: '#2980b9', house: '#1a5276', techno: '#154360', edm: '#5dade2',
+    pop: '#ff69b4', 'synth-pop': '#ff85c1',
+    hiphop: '#9b59b6', rap: '#8e44ad', 'hip hop': '#9b59b6', 'hip-hop': '#9b59b6',
+    folk: '#27ae60', country: '#1e8449', acoustic: '#229954', bluegrass: '#196f3d',
+    jazz: '#f39c12', blues: '#d68910', soul: '#b9770e', 'r&b': '#ca6f1e', rnb: '#ca6f1e',
+    classical: '#85929e', ambient: '#5d6d7e', 'new age': '#aab7b8',
+    reggae: '#16a085', ska: '#1abc9c', latin: '#e67e22', world: '#d4ac0d',
+    default: '#95a5a6'
+};
+
+function getGenreColor(genre) {
+    const lowerGenre = genre.toLowerCase();
+    if (GENRE_CATEGORY_COLORS[lowerGenre]) return GENRE_CATEGORY_COLORS[lowerGenre];
+    for (const [key, color] of Object.entries(GENRE_CATEGORY_COLORS)) {
+        if (lowerGenre.includes(key) || key.includes(lowerGenre)) return color;
+    }
+    return GENRE_CATEGORY_COLORS.default;
+}
+
+// =====================================================
+// FEUDS — COMPACT ONE-SLIDE
+// =====================================================
+function renderFeudsCompact() {
+    const container = document.getElementById('interstitial-feuds');
+    if (!container) return;
+
+    const grudges = (DATA.mutual_grudges || []).slice(0, 3);
+    const crushes = (DATA.one_sided_crushes || []).slice(0, 3);
+
+    if (grudges.length === 0 && crushes.length === 0) return;
+
+    const inner = container.querySelector('.interstitial-inner');
+
+    const grudgeRows = grudges.map(g => {
+        const temp = getTemperatureLabel(g.combined_coldness || 0);
+        return `<div class="feud-row">
+            <span class="feud-emoji">${temp.icon}</span>
+            <div class="feud-names">${escapeHtml(g.player1_name)} &harr; ${escapeHtml(g.player2_name)}</div>
+            <span class="feud-score">${(g.combined_coldness || 0).toFixed(1)} avg</span>
+        </div>`;
+    }).join('');
+
+    const crushRows = crushes.map(c => {
+        const temp = getTemperatureLabel(c.lover_avg || 0);
+        return `<div class="feud-row">
+            <span class="feud-emoji">${temp.icon}</span>
+            <div class="feud-names">${escapeHtml(c.lover_name)} &rarr; ${escapeHtml(c.cold_name)}</div>
+            <span class="feud-score">${(c.lover_avg || 0).toFixed(1)} given · ${(c.cold_avg || 0).toFixed(1)} back</span>
+        </div>`;
+    }).join('');
+
+    inner.innerHTML += `
+        <div class="feuds-grid fade-in">
+            <div class="feuds-column">
+                <h3>Mutual Feuds ⚔️</h3>
+                ${grudgeRows}
+            </div>
+            <div class="feuds-column">
+                <h3>Unrequited Love 💔</h3>
+                ${crushRows}
+            </div>
+        </div>
+    `;
+}
+
+// =====================================================
+// TACTICAL VOTING — TOP 3 PER QUADRANT TABLE
+// =====================================================
+function renderTacticalTable() {
+    const container = document.getElementById('interstitial-tactical');
+    if (!container) return;
+
+    const inner = container.querySelector('.interstitial-inner');
+
+    // Build vote data: for each vote, compute consensus score & residual from regression
+    const points = [];
+    DATA.songs.forEach(song => {
+        if (!song.vote_breakdown) return;
+        song.vote_breakdown.forEach(vote => {
+            const consensusScore = song.total_score - vote.points;
+            points.push({
+                x: consensusScore,
+                y: vote.points,
+                voter: vote.voter_name,
+                song: song.title,
+                artist: song.artist
+            });
+        });
+    });
+
+    if (points.length === 0) return;
+
+    // Linear regression
+    const n = points.length;
+    const sumX = points.reduce((s, d) => s + d.x, 0);
+    const sumY = points.reduce((s, d) => s + d.y, 0);
+    const sumXY = points.reduce((s, d) => s + d.x * d.y, 0);
+    const sumX2 = points.reduce((s, d) => s + d.x * d.x, 0);
+    const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+    const intercept = (sumY - slope * sumX) / n;
+
+    const xMin = Math.min(...points.map(d => d.x));
+    const xMax = Math.max(...points.map(d => d.x));
+    const xMid = (xMin + xMax) / 2;
+    const yMid = 1; // midpoint of typical vote range
+
+    // Compute residual & classify quadrant
+    const classified = points.map(d => {
+        const expected = slope * d.x + intercept;
+        const residual = d.y - expected;
+        let quadrant;
+        if (d.x < xMid && d.y > yMid) quadrant = 'contrarian';
+        else if (d.x > xMid && d.y > yMid) quadrant = 'crowd_pleaser';
+        else if (d.x < xMid && d.y < yMid) quadrant = 'agreement_bad';
+        else quadrant = 'hipster';
+        return { ...d, residual, absResidual: Math.abs(residual), quadrant };
+    });
+
+    const quadrants = {
+        contrarian: { label: 'Contrarian 🎯', caption: 'Loved what everyone else ignored', items: [] },
+        crowd_pleaser: { label: 'Crowd Pleaser 👏', caption: 'Voted high on songs everyone rated high', items: [] },
+        agreement_bad: { label: 'Agreement on Bad 💀', caption: 'Voted low on songs nobody liked', items: [] },
+        hipster: { label: 'Hipster 🎧', caption: 'Downvoted the popular favourites', items: [] }
+    };
+
+    classified.forEach(d => {
+        quadrants[d.quadrant].items.push(d);
+    });
+
+    // Sort each quadrant by |residual| and take top 3
+    Object.values(quadrants).forEach(q => {
+        q.items.sort((a, b) => b.absResidual - a.absResidual);
+        q.items = q.items.slice(0, 3);
+    });
+
+    const quadrantHtml = Object.values(quadrants).map(q => `
+        <div class="tactical-quadrant">
+            <h4>${q.label}</h4>
+            <p class="tactical-caption">${q.caption}</p>
+            ${q.items.map(d => `
+                <div class="tactical-song">
+                    <div class="tactical-song-title">${escapeHtml(d.song)}</div>
+                    <div class="tactical-song-meta">${escapeHtml(d.voter)} · ${d.y}pts</div>
+                </div>
+            `).join('')}
+        </div>
+    `).join('');
+
+    inner.innerHTML += `
+        <div class="tactical-grid fade-in">
+            ${quadrantHtml}
+        </div>
+    `;
+}
+
+// =====================================================
+// POPULARITY VS REALITY (ported from index.html)
+// =====================================================
+function renderPopularityReality() {
+    if (!STORIES || !STORIES.league_stories) return;
+
+    const container = document.getElementById('interstitial-popularity');
+    if (!container) return;
+    const inner = container.querySelector('.interstitial-inner');
+
+    const { sleeper_hits, hype_tax_victims, all_songs } = STORIES.league_stories.popularity_gap || {};
+    const allSongsData = all_songs || [];
+
+    if (allSongsData.length === 0) return;
+
+    // Add SVG container
+    inner.innerHTML += `
+        <div class="popularity-scatter-container fade-in">
+            <svg class="popularity-scatter" id="popularity-scatter"></svg>
+        </div>
+        <div class="outlier-list fade-in" id="outlier-list"></div>
+    `;
+
+    const svg = d3.select('#popularity-scatter');
+    const width = inner.clientWidth;
+    const height = window.innerWidth < 768 ? 350 : 500;
+    const margin = { top: 20, right: 30, bottom: 60, left: 70 };
+
+    svg.attr('width', width).attr('height', height);
+
+    const sleeperUris = new Set((sleeper_hits || []).map(s => s.spotify_uri));
+    const hypeUris = new Set((hype_tax_victims || []).map(s => s.spotify_uri));
+    const backgroundSongs = allSongsData.filter(s => !sleeperUris.has(s.spotify_uri) && !hypeUris.has(s.spotify_uri));
+    const outlierSongs = allSongsData.filter(s => sleeperUris.has(s.spotify_uri) || hypeUris.has(s.spotify_uri));
+
+    const x = d3.scaleLog()
+        .domain([Math.max(100, d3.min(allSongsData, d => d.listeners)), d3.max(allSongsData, d => d.listeners)])
+        .range([margin.left, width - margin.right])
+        .clamp(true);
+
+    const y = d3.scaleLinear()
+        .domain([d3.min(allSongsData, d => d.league_score) - 2, d3.max(allSongsData, d => d.league_score) + 2])
+        .range([height - margin.bottom, margin.top]);
+
+    // Clip path to contain dots within axes
+    svg.append('defs').append('clipPath').attr('id', 'pop-clip')
+        .append('rect')
+        .attr('x', margin.left).attr('y', margin.top)
+        .attr('width', width - margin.left - margin.right)
+        .attr('height', height - margin.top - margin.bottom);
+
+    const plotArea = svg.append('g').attr('clip-path', 'url(#pop-clip)');
+
+    // Axes
+    svg.append('g')
+        .attr('transform', `translate(0, ${height - margin.bottom})`)
+        .call(d3.axisBottom(x).ticks(5).tickFormat(d => d3.format('.2s')(d)))
+        .selectAll('text').attr('fill', 'var(--muted)');
+
+    svg.append('g')
+        .attr('transform', `translate(${margin.left}, 0)`)
+        .call(d3.axisLeft(y))
+        .selectAll('text').attr('fill', 'var(--muted)');
+
+    svg.selectAll('line').attr('stroke', 'var(--border)');
+    svg.selectAll('path.domain').attr('stroke', 'var(--border)');
+
+    svg.append('text').attr('x', width / 2).attr('y', height - 10)
+        .attr('fill', 'var(--muted)').attr('text-anchor', 'middle').attr('font-size', '12px')
+        .text('Last.fm Listeners (log scale)');
+
+    svg.append('text').attr('transform', 'rotate(-90)').attr('x', -height / 2).attr('y', 15)
+        .attr('fill', 'var(--muted)').attr('text-anchor', 'middle').attr('font-size', '12px')
+        .text('League Score');
+
+    // Background dots (inside clipped plot area)
+    plotArea.selectAll('circle.bg-point').data(backgroundSongs).enter()
+        .append('circle').attr('class', 'bg-point')
+        .attr('cx', d => x(d.listeners)).attr('cy', d => y(d.league_score))
+        .attr('r', 4).attr('fill', 'var(--muted)').attr('opacity', 0.3)
+        .on('mouseover', function(event, d) {
+            svg.selectAll('circle').attr('opacity', 0.1);
+            d3.select(this).attr('r', 8).attr('opacity', 0.8);
+            showTooltip(event, `<strong>"${escapeHtml(d.title)}"</strong><br>by ${escapeHtml(d.artist)}<br>${d.league_score} pts | ${d.listeners.toLocaleString()} listeners`);
+        })
+        .on('mouseout', function() {
+            svg.selectAll('circle.bg-point').attr('opacity', 0.3);
+            svg.selectAll('circle.outlier-point').attr('opacity', 0.85);
+            d3.select(this).attr('r', 4);
+            hideTooltip();
+        });
+
+    // Outlier dots (inside clipped plot area)
+    plotArea.selectAll('circle.outlier-point').data(outlierSongs).enter()
+        .append('circle').attr('class', 'outlier-point')
+        .attr('cx', d => x(d.listeners)).attr('cy', d => y(d.league_score))
+        .attr('r', 8)
+        .attr('fill', d => sleeperUris.has(d.spotify_uri) ? 'var(--accent2)' : 'var(--accent)')
+        .attr('opacity', 0.85)
+        .attr('stroke', d => sleeperUris.has(d.spotify_uri) ? 'var(--accent2)' : 'var(--accent)')
+        .attr('stroke-width', 2).attr('stroke-opacity', 0.3)
+        .on('mouseover', function(event, d) {
+            svg.selectAll('circle').attr('opacity', 0.1);
+            d3.select(this).attr('r', 12).attr('opacity', 1);
+            const category = sleeperUris.has(d.spotify_uri) ? 'Sleeper Hit' : 'Hype Tax Victim';
+            showTooltip(event, `<strong>"${escapeHtml(d.title)}"</strong><br>by ${escapeHtml(d.artist)}<br>${d.league_score} pts | ${d.listeners.toLocaleString()} listeners<br><em>${category}</em>`);
+        })
+        .on('mouseout', function() {
+            svg.selectAll('circle.bg-point').attr('opacity', 0.3);
+            svg.selectAll('circle.outlier-point').attr('opacity', 0.85);
+            d3.select(this).attr('r', 8);
+            hideTooltip();
+        });
+
+    // Outlier lists
+    const outlierContainer = document.getElementById('outlier-list');
+    outlierContainer.innerHTML = `
+        <div class="outlier-section sleepers">
+            <h4>Sleeper Hits</h4>
+            <p class="muted" style="font-size: var(--text-sm); margin-bottom: var(--space-md);">Low popularity, high league scores</p>
+            ${(sleeper_hits || []).slice(0, 5).map(s => `
+                <div class="outlier-item">
+                    <div class="outlier-song-info">
+                        <div class="outlier-song-title">${escapeHtml(s.title)}</div>
+                        <div class="outlier-song-meta">${escapeHtml(s.artist)} · ${s.submitter_name}</div>
+                    </div>
+                    <div class="outlier-stats">
+                        <div class="accent2">${s.league_score} pts</div>
+                        <div class="muted">${s.listeners.toLocaleString()} listeners</div>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+        <div class="outlier-section hype-tax">
+            <h4>Hype Tax Victims</h4>
+            <p class="muted" style="font-size: var(--text-sm); margin-bottom: var(--space-md);">High popularity, low league scores</p>
+            ${(hype_tax_victims || []).slice(0, 5).map(s => `
+                <div class="outlier-item">
+                    <div class="outlier-song-info">
+                        <div class="outlier-song-title">${escapeHtml(s.title)}</div>
+                        <div class="outlier-song-meta">${escapeHtml(s.artist)} · ${s.submitter_name}</div>
+                    </div>
+                    <div class="outlier-stats">
+                        <div class="accent">${s.league_score} pts</div>
+                        <div class="muted">${s.listeners.toLocaleString()} listeners</div>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+// =====================================================
+// RELEASE YEAR VS SCORE (ported from index.html)
+// =====================================================
+function renderYearVsScore() {
+    if (!STORIES || !STORIES.league_stories) return;
+
+    const container = document.getElementById('interstitial-year');
+    if (!container) return;
+    const inner = container.querySelector('.interstitial-inner');
+
+    const data = STORIES.league_stories.year_vs_score;
+    if (!data || !data.scatter_data || data.scatter_data.length === 0) return;
+
+    inner.innerHTML += `
+        <div class="insights-subsection fade-in">
+            <div class="year-scatter-container">
+                <svg class="year-scatter-chart" id="year-scatter-chart"></svg>
+                <div class="coverage-stat" id="year-coverage"></div>
+            </div>
+        </div>
+    `;
+
+    const svg = d3.select('#year-scatter-chart');
+    const width = inner.clientWidth;
+    const height = window.innerWidth < 768 ? 280 : 350;
+    const margin = { top: 30, right: 30, bottom: 50, left: 60 };
+
+    svg.attr('width', width).attr('height', height);
+
+    const g = svg.append('g').attr('transform', `translate(${margin.left}, ${margin.top})`);
+    const chartWidth = width - margin.left - margin.right;
+    const chartHeight = height - margin.top - margin.bottom;
+
+    const x = d3.scaleLinear()
+        .domain([data.trend.min_year - 2, data.trend.max_year + 2])
+        .range([0, chartWidth]);
+
+    const scores = data.scatter_data.map(d => d.score);
+    const y = d3.scaleLinear()
+        .domain([Math.min(...scores) - 1, Math.max(...scores) + 1])
+        .range([chartHeight, 0]);
+
+    g.append('g').attr('transform', `translate(0, ${chartHeight})`)
+        .call(d3.axisBottom(x).tickFormat(d => d.toString()))
+        .selectAll('text').attr('fill', 'var(--muted)');
+
+    g.append('g').call(d3.axisLeft(y))
+        .selectAll('text').attr('fill', 'var(--muted)');
+
+    g.selectAll('.domain').attr('stroke', 'var(--border)');
+    g.selectAll('.tick line').attr('stroke', 'var(--border)');
+
+    svg.append('text').attr('x', margin.left + chartWidth / 2).attr('y', height - 10)
+        .attr('text-anchor', 'middle').attr('fill', 'var(--muted)').style('font-size', '12px')
+        .text('Release Year');
+
+    svg.append('text').attr('transform', 'rotate(-90)')
+        .attr('x', -(margin.top + chartHeight / 2)).attr('y', 15)
+        .attr('text-anchor', 'middle').attr('fill', 'var(--muted)').style('font-size', '12px')
+        .text('League Score');
+
+    // Trend line
+    if (data.trend) {
+        const trendY1 = data.trend.slope * data.trend.min_year + data.trend.intercept;
+        const trendY2 = data.trend.slope * data.trend.max_year + data.trend.intercept;
+
+        g.append('line')
+            .attr('x1', x(data.trend.min_year)).attr('x2', x(data.trend.max_year))
+            .attr('y1', y(trendY1)).attr('y2', y(trendY2))
+            .attr('stroke', 'var(--accent)').attr('stroke-width', 2)
+            .attr('stroke-dasharray', '5,5').attr('opacity', 0.7);
+
+        const direction = data.trend.slope > 0 ? 'Newer songs score higher' : 'Older songs score higher';
+        svg.append('text')
+            .attr('x', width - margin.right - 10).attr('y', margin.top + 15)
+            .attr('text-anchor', 'end').attr('fill', 'var(--accent)')
+            .style('font-size', '11px').style('font-family', 'var(--font-mono)')
+            .text(`R² = ${data.trend.r_squared.toFixed(3)}`);
+        svg.append('text')
+            .attr('x', width - margin.right - 10).attr('y', margin.top + 30)
+            .attr('text-anchor', 'end').attr('fill', 'var(--muted)').style('font-size', '10px')
+            .text(Math.abs(data.trend.slope) < 0.01 ? 'No clear trend' : direction);
+    }
+
+    // Scatter points
+    g.selectAll('.scatter-point').data(data.scatter_data).enter()
+        .append('circle').attr('class', 'scatter-point')
+        .attr('cx', d => x(d.year)).attr('cy', d => y(d.score))
+        .attr('r', 5).attr('fill', 'var(--accent2)').attr('opacity', 0.6)
+        .style('cursor', 'pointer')
+        .on('mouseover', function(event, d) {
+            d3.select(this).attr('r', 8).attr('opacity', 1);
+            showTooltip(event, `<strong>${escapeHtml(d.title)}</strong><br>${escapeHtml(d.artist)}<br>Year: ${d.year} · Score: ${d.score}<br>By: ${d.submitter_name}`);
+        })
+        .on('mouseout', function() {
+            d3.select(this).attr('r', 5).attr('opacity', 0.6);
+            hideTooltip();
+        });
+
+    if (data.coverage) {
+        document.getElementById('year-coverage').textContent = `Coverage: ${data.coverage.with_year}/${data.coverage.total} songs (${data.coverage.percent}%)`;
+    }
+}
+
+// =====================================================
+// GENRE PERFORMANCE — BOX PLOTS (ported from index.html)
+// =====================================================
+function renderGenreBoxPlots() {
+    if (!STORIES || !STORIES.league_stories) return;
+
+    const container = document.getElementById('interstitial-genre');
+    if (!container) return;
+    const inner = container.querySelector('.interstitial-inner');
+
+    const data = STORIES.league_stories.genre_vs_score;
+    if (!data || !data.box_plots || data.box_plots.length === 0) return;
+
+    inner.innerHTML += `
+        <div class="insights-subsection fade-in">
+            <div class="genre-boxplots-container">
+                <svg class="genre-boxplots-chart" id="genre-boxplots-chart"></svg>
+                <div class="coverage-stat" id="genre-coverage"></div>
+            </div>
+        </div>
+    `;
+
+    const svg = d3.select('#genre-boxplots-chart');
+    const width = inner.clientWidth;
+    const height = window.innerWidth < 768 ? 280 : 350;
+    const margin = { top: 20, right: 30, bottom: 100, left: 60 };
+
+    svg.attr('width', width).attr('height', height);
+
+    const g = svg.append('g').attr('transform', `translate(${margin.left}, ${margin.top})`);
+    const chartWidth = width - margin.left - margin.right;
+    const chartHeight = height - margin.top - margin.bottom;
+
+    const x = d3.scaleBand()
+        .domain(data.box_plots.map(d => d.genre))
+        .range([0, chartWidth]).padding(0.3);
+
+    const allScores = data.box_plots.flatMap(d => [d.min, d.max]);
+    const y = d3.scaleLinear()
+        .domain([Math.min(...allScores) - 1, Math.max(...allScores) + 1])
+        .range([chartHeight, 0]);
+
+    const medians = data.box_plots.map(d => d.median);
+    const colorScale = d3.scaleSequential()
+        .domain([Math.min(...medians), Math.max(...medians)])
+        .interpolator(d3.interpolateRdYlGn);
+
+    g.append('g').attr('transform', `translate(0, ${chartHeight})`)
+        .call(d3.axisBottom(x))
+        .selectAll('text').attr('fill', 'var(--muted)')
+        .attr('transform', 'rotate(-45)').attr('text-anchor', 'end')
+        .attr('dx', '-0.5em').attr('dy', '0.5em');
+
+    g.append('g').call(d3.axisLeft(y))
+        .selectAll('text').attr('fill', 'var(--muted)');
+
+    g.selectAll('.domain').attr('stroke', 'var(--border)');
+    g.selectAll('.tick line').attr('stroke', 'var(--border)');
+
+    const boxWidth = Math.min(x.bandwidth(), 50);
+
+    const boxes = g.selectAll('.genre-box').data(data.box_plots).enter()
+        .append('g').attr('class', 'genre-box')
+        .attr('transform', d => `translate(${x(d.genre) + x.bandwidth() / 2}, 0)`);
+
+    // Whisker
+    boxes.append('line').attr('x1', 0).attr('x2', 0)
+        .attr('y1', d => y(d.min)).attr('y2', d => y(d.max))
+        .attr('stroke', 'var(--fg)').attr('stroke-width', 1);
+
+    // Min cap
+    boxes.append('line').attr('x1', -boxWidth / 4).attr('x2', boxWidth / 4)
+        .attr('y1', d => y(d.min)).attr('y2', d => y(d.min)).attr('stroke', 'var(--fg)');
+
+    // Max cap
+    boxes.append('line').attr('x1', -boxWidth / 4).attr('x2', boxWidth / 4)
+        .attr('y1', d => y(d.max)).attr('y2', d => y(d.max)).attr('stroke', 'var(--fg)');
+
+    // Box
+    boxes.append('rect').attr('x', -boxWidth / 2).attr('y', d => y(d.q3))
+        .attr('width', boxWidth).attr('height', d => Math.max(1, y(d.q1) - y(d.q3)))
+        .attr('fill', d => colorScale(d.median)).attr('stroke', 'var(--fg)')
+        .attr('rx', 2).attr('opacity', 0.8);
+
+    // Median
+    boxes.append('line').attr('x1', -boxWidth / 2).attr('x2', boxWidth / 2)
+        .attr('y1', d => y(d.median)).attr('y2', d => y(d.median))
+        .attr('stroke', 'var(--bg)').attr('stroke-width', 3);
+
+    // Interaction overlay
+    boxes.append('rect').attr('x', -boxWidth / 2 - 5).attr('y', d => y(d.max) - 5)
+        .attr('width', boxWidth + 10).attr('height', d => y(d.min) - y(d.max) + 10)
+        .attr('fill', 'transparent').style('cursor', 'pointer')
+        .on('mouseover', function(event, d) {
+            d3.select(this.parentNode).select('rect:not([fill="transparent"])').attr('opacity', 1).attr('stroke-width', 2);
+            showTooltip(event, `<strong>${d.genre}</strong><br>${d.count} songs<br>Min: ${d.min} · Q1: ${d.q1}<br>Median: ${d.median} · Q3: ${d.q3}<br>Max: ${d.max} · Mean: ${d.mean}`);
+        })
+        .on('mouseout', function() {
+            d3.select(this.parentNode).select('rect:not([fill="transparent"])').attr('opacity', 0.8).attr('stroke-width', 1);
+            hideTooltip();
+        });
+
+    if (data.coverage) {
+        document.getElementById('genre-coverage').textContent = `Coverage: ${data.coverage.with_genre}/${data.coverage.total} songs (${data.coverage.percent}%)`;
+    }
+}
+
+// =====================================================
+// DECADE MACHINE (ported from index.html)
+// =====================================================
+function renderDecadeMachine() {
+    if (!STORIES || !STORIES.league_stories) return;
+
+    const container = document.getElementById('interstitial-decade');
+    if (!container) return;
+    const inner = container.querySelector('.interstitial-inner');
+
+    const decadeBreakdown = STORIES.league_stories.decade_breakdown || {};
+    const leagueDecades = decadeBreakdown.league || {};
+    const playerDecades = decadeBreakdown.by_player || {};
+
+    const decades = Object.keys(leagueDecades).sort();
+    if (decades.length === 0) return;
+
+    inner.innerHTML += `
+        <div class="decade-chart-container fade-in">
+            <svg class="decade-chart" id="decade-chart"></svg>
+        </div>
+        <div class="decade-awards fade-in" id="decade-awards"></div>
+    `;
+
+    const svg = d3.select('#decade-chart');
+    const width = inner.clientWidth;
+    const isMobile = window.innerWidth < 768;
+    const height = isMobile ? 300 : 400;
+    const margin = { top: 20, right: 30, bottom: 80, left: 60 };
+
+    svg.attr('width', width).attr('height', height);
+
+    function decadeToYear(decade) {
+        const match = decade.match(/(\d{4})s/);
+        return match ? parseInt(match[1]) + 5 : 2000;
+    }
+
+    const players = DATA.players.filter(p => p.submission_count > 0);
+
+    const boxPlotData = players.map(player => {
+        const decadeCounts = playerDecades[player.id] || {};
+        const years = [];
+        Object.entries(decadeCounts).forEach(([decade, count]) => {
+            const year = decadeToYear(decade);
+            for (let i = 0; i < count; i++) years.push(year);
+        });
+
+        if (years.length === 0) return { player, name: player.name, stats: null };
+        years.sort((a, b) => a - b);
+
+        const n = years.length;
+        const median = n % 2 === 0 ? (years[n/2 - 1] + years[n/2]) / 2 : years[Math.floor(n/2)];
+        const lowerHalf = years.slice(0, Math.floor(n/2));
+        const upperHalf = years.slice(Math.ceil(n/2));
+        const q1 = lowerHalf.length > 0 ? (lowerHalf.length % 2 === 0 ? (lowerHalf[lowerHalf.length/2 - 1] + lowerHalf[lowerHalf.length/2]) / 2 : lowerHalf[Math.floor(lowerHalf.length/2)]) : years[0];
+        const q3 = upperHalf.length > 0 ? (upperHalf.length % 2 === 0 ? (upperHalf[upperHalf.length/2 - 1] + upperHalf[upperHalf.length/2]) / 2 : upperHalf[Math.floor(upperHalf.length/2)]) : years[n - 1];
+
+        return {
+            player, name: player.name,
+            stats: { min: years[0], q1, median, q3, max: years[n - 1], count: n },
+            decadeCounts
+        };
+    }).filter(d => d.stats !== null);
+
+    boxPlotData.sort((a, b) => a.stats.median - b.stats.median);
+    const playerNames = boxPlotData.map(d => d.name);
+
+    const x = d3.scaleBand().domain(playerNames)
+        .range([margin.left, width - margin.right]).padding(0.3);
+
+    const allYears = decades.map(d => decadeToYear(d));
+    const minYear = Math.min(...allYears) - 5;
+    const maxYear = Math.max(...allYears) + 5;
+
+    const y = d3.scaleLinear().domain([minYear, maxYear])
+        .range([height - margin.bottom, margin.top]);
+
+    const colorScale = d3.scaleSequential(d3.interpolateViridis).domain([minYear, maxYear]);
+
+    // Gridlines
+    svg.append('g').selectAll('line').data(decades).enter()
+        .append('line')
+        .attr('x1', margin.left).attr('x2', width - margin.right)
+        .attr('y1', d => y(decadeToYear(d))).attr('y2', d => y(decadeToYear(d)))
+        .attr('stroke', 'var(--border)').attr('stroke-dasharray', '3,3').attr('opacity', 0.5);
+
+    svg.append('g').attr('transform', `translate(0, ${height - margin.bottom})`)
+        .call(d3.axisBottom(x))
+        .selectAll('text').attr('fill', 'var(--muted)')
+        .attr('transform', 'rotate(-45)').attr('text-anchor', 'end')
+        .attr('dx', '-0.5em').attr('dy', '0.5em').style('font-size', '11px');
+
+    const yAxis = d3.axisLeft(y).tickValues(decades.map(d => decadeToYear(d))).tickFormat(d => `${d - 5}s`);
+    svg.append('g').attr('transform', `translate(${margin.left}, 0)`)
+        .call(yAxis).selectAll('text').attr('fill', 'var(--muted)');
+
+    svg.selectAll('.domain').attr('stroke', 'var(--border)');
+    svg.selectAll('.tick line').attr('stroke', 'var(--border)');
+
+    const boxWidth = Math.min(x.bandwidth(), 40);
+
+    const boxes = svg.append('g').selectAll('g').data(boxPlotData).enter()
+        .append('g').attr('class', 'box-plot')
+        .attr('transform', d => `translate(${x(d.name) + x.bandwidth() / 2}, 0)`);
+
+    boxes.append('line').attr('x1', 0).attr('x2', 0)
+        .attr('y1', d => y(d.stats.min)).attr('y2', d => y(d.stats.max))
+        .attr('stroke', 'var(--fg)').attr('stroke-width', 1);
+
+    boxes.append('line').attr('x1', -boxWidth / 4).attr('x2', boxWidth / 4)
+        .attr('y1', d => y(d.stats.min)).attr('y2', d => y(d.stats.min)).attr('stroke', 'var(--fg)');
+
+    boxes.append('line').attr('x1', -boxWidth / 4).attr('x2', boxWidth / 4)
+        .attr('y1', d => y(d.stats.max)).attr('y2', d => y(d.stats.max)).attr('stroke', 'var(--fg)');
+
+    boxes.append('rect').attr('x', -boxWidth / 2).attr('y', d => y(d.stats.q3))
+        .attr('width', boxWidth).attr('height', d => Math.max(1, y(d.stats.q1) - y(d.stats.q3)))
+        .attr('fill', d => colorScale(d.stats.median)).attr('stroke', 'var(--fg)')
+        .attr('stroke-width', 1).attr('rx', 2).attr('opacity', 0.8);
+
+    boxes.append('line').attr('x1', -boxWidth / 2).attr('x2', boxWidth / 2)
+        .attr('y1', d => y(d.stats.median)).attr('y2', d => y(d.stats.median))
+        .attr('stroke', 'var(--bg)').attr('stroke-width', 3);
+
+    boxes.append('rect').attr('x', -boxWidth / 2 - 5).attr('y', d => y(d.stats.max) - 5)
+        .attr('width', boxWidth + 10).attr('height', d => y(d.stats.min) - y(d.stats.max) + 10)
+        .attr('fill', 'transparent').style('cursor', 'pointer')
+        .on('mouseover', function(event, d) {
+            d3.select(this.parentNode).select('rect:not([fill="transparent"])').attr('opacity', 1).attr('stroke-width', 2);
+            const decadeStr = Object.entries(d.decadeCounts).sort((a, b) => b[1] - a[1]).map(([dec, cnt]) => `${dec}: ${cnt}`).join('<br>');
+            showTooltip(event, `<strong>${d.name}</strong><br>${d.stats.count} songs<br>Range: ${d.stats.min - 5}s – ${d.stats.max - 5}s<br>Median: ${d.stats.median - 5}s<br>${decadeStr}`);
+        })
+        .on('mouseout', function() {
+            d3.select(this.parentNode).select('rect:not([fill="transparent"])').attr('opacity', 0.8).attr('stroke-width', 1);
+            hideTooltip();
+        });
+
+    // Decade awards
+    renderDecadeAwards();
+}
+
+function renderDecadeAwards() {
+    const container = document.getElementById('decade-awards');
+    if (!container || !STORIES) return;
+
+    const playerProfiles = STORIES.player_profiles || {};
+    const decadeChampions = {};
+
+    Object.values(playerProfiles).forEach(p => {
+        if (p.dominant_decade && p.dominant_decade_pct > 40) {
+            if (!decadeChampions[p.dominant_decade] || p.dominant_decade_pct > decadeChampions[p.dominant_decade].pct) {
+                decadeChampions[p.dominant_decade] = { name: p.name, pct: p.dominant_decade_pct };
+            }
+        }
+    });
+
+    const decadeIcons = {
+        '1960s': '🎸', '1970s': '🪩', '1980s': '📼', '1990s': '💿',
+        '2000s': '📀', '2010s': '📱', '2020s': '🎧'
+    };
+
+    container.innerHTML = Object.entries(decadeChampions).map(([decade, data]) => `
+        <div class="decade-award">
+            <span class="decade-award-icon">${decadeIcons[decade] || '🎵'}</span>
+            <div>
+                <div class="decade-award-label">Living in the ${decade}</div>
+                <div class="decade-award-name">${data.name}</div>
+                <div class="muted" style="font-size: var(--text-xs);">${data.pct.toFixed(0)}% of submissions</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// =====================================================
+// FINAL RACE CHART (Epilogue - full view)
+// =====================================================
+function renderFinalRaceChart() {
+    const container = document.getElementById('finalRaceChart');
+    if (!container) return;
+
+    container.innerHTML = '';
+
+    const isMobile = window.innerWidth < 768;
+    const margin = isMobile
+        ? { top: 25, right: 10, bottom: 40, left: 35 }
+        : { top: 20, right: 120, bottom: 40, left: 40 };
+    const width = container.clientWidth || container.offsetWidth || 600;
+    const height = container.clientHeight || container.offsetHeight || 300;
+
+    if (width < 50 || height < 50) return; // container not laid out yet
+
+    const svg = d3.select(container).append('svg')
+        .attr('width', width).attr('height', height);
+
+    const timeline = DATA.rankings_timeline;
+    if (!timeline || timeline.length === 0) return;
+
+    const players = DATA.players.filter(p => p.submission_count > 0);
+    const playerCount = players.length;
+
+    const x = d3.scaleLinear()
+        .domain([0, timeline.length - 1])
+        .range([margin.left, width - margin.right]);
+
+    const y = d3.scaleLinear()
+        .domain([1, playerCount])
+        .range([margin.top, height - margin.bottom]);
+
+    // X-axis
+    svg.append('g')
+        .attr('transform', `translate(0, ${height - margin.bottom})`)
+        .call(d3.axisBottom(x)
+            .ticks(isMobile ? 10 : 20)
+            .tickFormat(i => `R${Math.round(i) + 1}`))
+        .selectAll('text').attr('fill', 'var(--muted)').attr('font-size', '9px');
+
+    // Y-axis
+    svg.append('g')
+        .attr('transform', `translate(${margin.left}, 0)`)
+        .call(d3.axisLeft(y)
+            .ticks(isMobile ? Math.ceil(playerCount / 2) : playerCount)
+            .tickFormat(d => `#${d}`))
+        .selectAll('text').attr('fill', 'var(--muted)');
+
+    svg.selectAll('line').attr('stroke', 'var(--border)');
+    svg.selectAll('path.domain').attr('stroke', 'var(--border)');
+
+    // Build line data per player
+    const lineData = {};
+    players.forEach(p => { lineData[p.id] = []; });
+    timeline.forEach((roundData, roundIndex) => {
+        Object.entries(roundData.rankings).forEach(([pid, data]) => {
+            if (lineData[pid]) {
+                lineData[pid].push({
+                    round: roundIndex, rank: data.rank,
+                    points: data.cumulative_points, name: data.name
+                });
+            }
+        });
+    });
+
+    const line = d3.line().x(d => x(d.round)).y(d => y(d.rank)).curve(d3.curveMonotoneX);
+
+    let isolatedPlayerId = null;
+
+    function highlightPlayer(pid) {
+        svg.selectAll('path.race-line').attr('stroke-opacity', 0.15).attr('stroke-width', 1.5);
+        svg.selectAll('circle.race-dot').attr('opacity', 0.15);
+        svg.selectAll('text.race-end-label').attr('opacity', 0.15);
+
+        svg.selectAll(`.race-line-${pid}`).attr('stroke-opacity', 1).attr('stroke-width', 3.5);
+        svg.selectAll(`.race-dot-${pid}`).attr('opacity', 1);
+        svg.selectAll(`.race-end-label-${pid}`).attr('opacity', 1);
+    }
+
+    function restoreAll() {
+        svg.selectAll('path.race-line').attr('stroke-opacity', 0.7).attr('stroke-width', 2);
+        svg.selectAll('circle.race-dot').attr('opacity', 1);
+        svg.selectAll('text.race-end-label').attr('opacity', 1);
+        hideTooltip();
+    }
+
+    // Draw lines
+    Object.entries(lineData).forEach(([pid, data]) => {
+        if (data.length === 0) return;
+        const color = PLAYER_COLORS[pid] || '#555';
+
+        // Hit area
+        svg.append('path').datum(data)
+            .attr('fill', 'none').attr('stroke', 'transparent').attr('stroke-width', 20)
+            .attr('d', line).style('cursor', 'pointer')
+            .on('mouseover', function(event) {
+                if (isolatedPlayerId) return;
+                highlightPlayer(pid);
+                const lastPt = data[data.length - 1];
+                showTooltip(event, `<strong>${lastPt.name}</strong><br>${lastPt.points} total pts`);
+            })
+            .on('mousemove', function(event) {
+                if (isolatedPlayerId) return;
+                const lastPt = data[data.length - 1];
+                showTooltip(event, `<strong>${lastPt.name}</strong><br>${lastPt.points} total pts`);
+            })
+            .on('mouseout', function() { if (!isolatedPlayerId) restoreAll(); });
+
+        // Visible line
+        svg.append('path').datum(data)
+            .attr('fill', 'none').attr('stroke', color)
+            .attr('stroke-width', 2).attr('stroke-opacity', 0.7)
+            .attr('d', line)
+            .attr('class', `race-line race-line-${pid}`)
+            .style('pointer-events', 'none');
+
+        // End labels
+        const lastPoint = data[data.length - 1];
+        if (!isMobile) {
+            svg.append('text')
+                .attr('x', x(lastPoint.round) + 5).attr('y', y(lastPoint.rank))
+                .attr('dy', '0.35em').attr('fill', color)
+                .attr('font-size', '10px').attr('font-family', 'var(--font-mono)')
+                .attr('class', `race-end-label race-end-label-${pid}`)
+                .text(`${lastPoint.name} (${lastPoint.points})`);
+        }
+
+        // Dots
+        svg.selectAll(`.dot-${pid}`).data(data).enter()
+            .append('circle')
+            .attr('cx', d => x(d.round)).attr('cy', d => y(d.rank))
+            .attr('r', isMobile ? 2.5 : 3.5).attr('fill', color)
+            .attr('stroke', 'var(--bg)').attr('stroke-width', 1)
+            .attr('class', `race-dot race-dot-${pid}`)
+            .on('mouseover', function(event, d) {
+                if (isolatedPlayerId) return;
+                d3.select(this).attr('r', isMobile ? 5 : 7);
+                highlightPlayer(pid);
+                const change = d.round > 0 ? d.points - lineData[pid][d.round - 1].points : d.points;
+                showTooltip(event, `<strong>R${d.round + 1}: ${d.name}</strong><br>${d.points} pts (${change >= 0 ? '+' : ''}${change})`);
+            })
+            .on('mouseout', function() {
+                if (isolatedPlayerId) return;
+                d3.select(this).attr('r', isMobile ? 2.5 : 3.5);
+                restoreAll();
+            });
+    });
+
+    // Lead change diamonds
+    DATA.lead_changes.forEach(lc => {
+        const roundIdx = lc.round_order;
+        const rt = timeline[roundIdx];
+        if (!rt) return;
+        const leaderRank = Object.values(rt.rankings).find(r => r.name === lc.new_leader)?.rank || 1;
+
+        svg.append('path')
+            .attr('d', d3.symbol().type(d3.symbolDiamond).size(80))
+            .attr('transform', `translate(${x(roundIdx)},${y(leaderRank)})`)
+            .attr('fill', PLAYER_COLORS[lc.new_leader_id] || 'var(--accent)')
+            .attr('stroke', 'var(--bg)').attr('stroke-width', 1.5);
+    });
+
+    // Leadership timeline ribbon
+    const leadershipData = timeline.map((roundData, roundIndex) => {
+        let leader = null, leaderPoints = 0;
+        Object.entries(roundData.rankings).forEach(([pid, data]) => {
+            if (data.rank === 1) { leader = data.name; leaderPoints = data.cumulative_points; }
+        });
+        return { round: roundIndex, leader, points: leaderPoints };
+    });
+
+    const ribbonHeight = 12;
+    const ribbonY = height - margin.bottom + 24;
+    leadershipData.forEach((d, i) => {
+        const x1 = x(i);
+        const x2 = x(i + 1 < leadershipData.length ? i + 1 : i) || x(i) + (x(1) - x(0));
+        const leaderId = Object.entries(timeline[i].rankings).find(([pid, r]) => r.rank === 1)?.[0];
+        svg.append('rect')
+            .attr('x', x1).attr('y', ribbonY)
+            .attr('width', Math.max(1, x2 - x1)).attr('height', ribbonHeight)
+            .attr('fill', PLAYER_COLORS[leaderId] || 'var(--muted)')
+            .attr('stroke', 'var(--bg)').attr('stroke-width', 0.5);
+    });
+
+    // Legend (click-to-isolate)
+    const legendDiv = document.createElement('div');
+    legendDiv.className = 'race-legend';
+    const sortedPlayers = [...players].sort((a, b) => b.total_points_received - a.total_points_received).slice(0, 10);
+
+    legendDiv.innerHTML = sortedPlayers.map(p => `
+        <div class="race-legend-item" data-player-id="${p.id}">
+            <div class="race-legend-dot" style="background: ${PLAYER_COLORS[p.id] || '#555'}"></div>
+            <span>${p.name}</span>
+        </div>
+    `).join('');
+
+    container.appendChild(legendDiv);
+
+    legendDiv.querySelectorAll('.race-legend-item').forEach(item => {
+        item.addEventListener('click', function() {
+            const pid = this.dataset.playerId;
+            if (isolatedPlayerId === pid) {
+                isolatedPlayerId = null;
+                restoreAll();
+                legendDiv.querySelectorAll('.race-legend-item').forEach(el => el.classList.remove('active', 'faded'));
+            } else {
+                isolatedPlayerId = pid;
+                highlightPlayer(pid);
+                legendDiv.querySelectorAll('.race-legend-item').forEach(el => {
+                    el.classList.toggle('active', el.dataset.playerId === pid);
+                    el.classList.toggle('faded', el.dataset.playerId !== pid);
+                });
+            }
+        });
+        item.addEventListener('mouseenter', function() {
+            if (isolatedPlayerId) return;
+            highlightPlayer(this.dataset.playerId);
+        });
+        item.addEventListener('mouseleave', function() {
+            if (isolatedPlayerId) return;
+            restoreAll();
+        });
+    });
+}
+
+// =====================================================
+// SCROLL MANAGEMENT
+// =====================================================
+function setupScrollObservers() {
+    // Fade-in observer
+    const fadeObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.1 });
+
+    $$('.fade-in, .slide-in-left').forEach(el => fadeObserver.observe(el));
+
+    // Chapter observer (drives race chart)
+    const chapterObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const roundIdx = parseInt(entry.target.dataset.round);
+                if (!isNaN(roundIdx)) {
+                    currentRound = roundIdx;
+                    updateRaceToRound(roundIdx);
+                    updateProgressNav(roundIdx);
+                }
+            }
+        });
+    }, {
+        rootMargin: '-30% 0px -30% 0px',
+        threshold: 0
+    });
+
+    $$('.chapter').forEach(ch => chapterObserver.observe(ch));
+
+    // Progress nav visibility
+    window.addEventListener('scroll', () => {
+        const nav = $('#progressNav');
+        if (window.scrollY > 400) {
+            nav.classList.add('visible');
+        } else {
+            nav.classList.remove('visible');
+        }
+    });
+}
+
+// =====================================================
+// PROGRESS NAV
+// =====================================================
+function setupProgressNav() {
+    const dotsContainer = $('#progressDots');
+    dotsContainer.innerHTML = '';
+
+    for (let i = 0; i < 20; i++) {
+        const dot = document.createElement('button');
+        dot.className = 'progress-dot';
+        dot.dataset.round = i;
+        dot.title = `Round ${i + 1}: ${DATA.rounds[i].name}`;
+        dot.addEventListener('click', () => {
+            const chapter = $(`#round-${i + 1}`);
+            if (chapter) {
+                chapter.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+        dotsContainer.appendChild(dot);
+    }
+}
+
+function updateProgressNav(roundIdx) {
+    const label = $('#progressLabel');
+    label.textContent = `Round ${roundIdx + 1}`;
+
+    const fill = $('#progressFill');
+    fill.style.width = `${((roundIdx + 1) / 20) * 100}%`;
+
+    $$('.progress-dot').forEach((dot, i) => {
+        dot.classList.remove('active');
+        if (i < roundIdx) dot.classList.add('visited');
+        if (i === roundIdx) dot.classList.add('active');
+    });
+}
+
+// =====================================================
+// LAZY SCORECARD RENDERING
+// =====================================================
+function setupLazyScorecards() {
+    const scorecardObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting && !entry.target.dataset.rendered) {
+                const roundIdx = parseInt(entry.target.id.replace('scorecard-', ''));
+                renderScorecard(entry.target, roundIdx);
+                entry.target.dataset.rendered = 'true';
+                scorecardObserver.unobserve(entry.target);
+            }
+        });
+    }, { rootMargin: '200px' });
+
+    $$('.scorecard').forEach(sc => scorecardObserver.observe(sc));
+}
+
+// =====================================================
+// INITIALIZATION
+// =====================================================
+Promise.all([
+    fetch('data.json').then(r => r.json()),
+    fetch('comment_enrichment.json').then(r => r.json()).catch(() => null),
+    fetch('stories.json').then(r => r.json()).catch(() => null)
+])
+.then(([data, comments, stories]) => {
+    DATA = data;
+    COMMENTS = comments;
+    STORIES = stories;
+
+    // Assign colors
+    assignPlayerColors(DATA.players);
+
+    // Determine top 6
+    const sorted = [...DATA.players].sort((a, b) => b.total_points_received - a.total_points_received);
+    TOP6_IDS = sorted.slice(0, 6).map(p => p.id);
+
+    // Render all sections
+    renderPrologue();
+    renderChapters();
+    renderEpilogue();
+
+    // Init race chart
+    initRaceChart();
+    updateRaceToRound(0);
+
+    // Render new interstitial sections (data from DATA)
+    renderFeudsCompact();
+    renderTacticalTable();
+
+    // Render STORIES-dependent interstitials
+    if (STORIES) {
+        renderPopularityReality();
+        renderYearVsScore();
+        renderGenreBoxPlots();
+        renderDecadeMachine();
+    }
+
+    // Setup interactions
+    setupProgressNav();
+    setupScrollObservers();
+    setupLazyScorecards();
+
+    // Render final race chart & awards
+    try { renderFinalRaceChart(); } catch (e) { console.error('Final race chart error:', e); }
+    // Awards are now built inline by renderEpilogue() via buildAwardsHtml()
+
+    // Handle resize
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            // Re-render sticky race chart
+            initRaceChart();
+            updateRaceToRound(currentRound);
+
+            // Re-render final race chart
+            renderFinalRaceChart();
+
+            // Re-render D3 visualizations in interstitials
+            const popContainer = document.querySelector('#interstitial-popularity .popularity-scatter-container');
+            if (popContainer) { popContainer.remove(); document.querySelector('#interstitial-popularity .outlier-list')?.remove(); renderPopularityReality(); }
+
+            const yearContainer = document.querySelector('#interstitial-year .insights-subsection');
+            if (yearContainer) { yearContainer.remove(); renderYearVsScore(); }
+
+            const genreContainer = document.querySelector('#interstitial-genre .insights-subsection');
+            if (genreContainer) { genreContainer.remove(); renderGenreBoxPlots(); }
+
+            const decadeContainer = document.querySelector('#interstitial-decade .decade-chart-container');
+            if (decadeContainer) { decadeContainer.remove(); document.querySelector('#interstitial-decade .decade-awards')?.remove(); renderDecadeMachine(); }
+        }, 300);
+    });
+});
+</script>
+</body>
+</html>
