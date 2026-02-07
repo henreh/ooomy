@@ -55,11 +55,14 @@ html, body {
   display: flex; align-items: center; justify-content: center;
 }
 
+#grid-wrapper {
+  position: relative; margin: 12px auto; width: fit-content; max-width: 95vw;
+}
+
 #grid-container {
-  display: grid; gap: 0; margin: 12px auto;
+  display: grid; gap: 0;
   border: 2px solid var(--border);
   width: fit-content; max-width: 95vw;
-  position: relative;
 }
 
 .cell {
@@ -91,9 +94,12 @@ html, body {
 .cell.flash-incorrect { background: var(--incorrect); color: #fff; }
 
 #hidden-input {
-  position: absolute; left: -9999px; top: 0;
-  width: 1px; height: 1px; opacity: 0;
+  position: absolute; top: 0; left: 0;
+  width: var(--cell-size); height: var(--cell-size);
+  opacity: 0; border: none; outline: none;
   font-size: 16px; /* prevent iOS zoom */
+  pointer-events: none; z-index: 5;
+  caret-color: transparent;
 }
 
 #solver-controls {
@@ -204,9 +210,11 @@ html, body {
 <!-- Solver Mode -->
 <div id="solver">
   <div id="clue-banner">Select a cell to begin</div>
-  <div id="grid-container"></div>
-  <input id="hidden-input" type="text" inputmode="text" autocapitalize="characters"
-         autocomplete="off" autocorrect="off" spellcheck="false">
+  <div id="grid-wrapper">
+    <div id="grid-container"></div>
+    <input id="hidden-input" type="text" inputmode="text" autocapitalize="characters"
+           autocomplete="off" autocorrect="off" spellcheck="false">
+  </div>
   <div id="solver-controls">
     <button id="btn-check">Check</button>
     <button id="btn-clear">Clear</button>
@@ -705,7 +713,6 @@ function selectCell(idx) {
       if (el.dataset.startCell == activeEntry.startCell &&
           el.dataset.direction === solverState.direction) {
         el.classList.add('active');
-        el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
       }
     });
   }
@@ -716,6 +723,15 @@ function selectCell(idx) {
 
 function focusInput() {
   const inp = document.getElementById('hidden-input');
+  const { selectedCell, cellElements } = solverState;
+  if (selectedCell >= 0) {
+    const cellEl = cellElements[selectedCell];
+    const wrapper = document.getElementById('grid-wrapper');
+    const wrapperRect = wrapper.getBoundingClientRect();
+    const cellRect = cellEl.getBoundingClientRect();
+    inp.style.top = (cellRect.top - wrapperRect.top) + 'px';
+    inp.style.left = (cellRect.left - wrapperRect.left) + 'px';
+  }
   inp.focus({ preventScroll: true });
 }
 
