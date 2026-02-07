@@ -613,16 +613,10 @@ function initSolver(puzzle) {
     initCreator();
   };
 
-  // Hidden input — dual-path strategy for desktop + Android IME compatibility
+  // Hidden input — process every input immediately (no composition tracking;
+  // clearing the input mid-composition intentionally breaks IME compose state,
+  // which is correct for single-character crossword entry)
   const hiddenInput = document.getElementById('hidden-input');
-  let isComposing = false;
-
-  hiddenInput.addEventListener('compositionstart', () => { isComposing = true; });
-  hiddenInput.addEventListener('compositionend', () => {
-    isComposing = false;
-    // Process whatever ended up in the input
-    processInputValue(hiddenInput);
-  });
 
   hiddenInput.addEventListener('beforeinput', (e) => {
     if (e.inputType === 'deleteContentBackward' || e.inputType === 'deleteContentForward') {
@@ -632,7 +626,6 @@ function initSolver(puzzle) {
   });
 
   hiddenInput.addEventListener('input', () => {
-    if (isComposing) return; // wait for compositionend
     processInputValue(hiddenInput);
   });
 
@@ -770,6 +763,7 @@ function fillCell(ch) {
     }
   }
   scheduleHashUpdate();
+  focusInput();
 }
 
 function handleBackspace() {
