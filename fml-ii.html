@@ -2625,9 +2625,6 @@ function renderChapters() {
                             const display = typeof b.value === 'number' ? (b.value % 1 !== 0 ? b.value : b.value.toLocaleString()) : b.value;
                             return `<div class="micro-viz-row">
                                 <div class="micro-viz-label" title="${b.label}">${b.label}</div>
-                                <div class="micro-viz-bar-track">
-                                    <div class="micro-viz-bar" style="width:${w}%"></div>
-                                </div>
                                 <div class="micro-viz-value">${display}</div>
                                 ${b.note ? `<div class="micro-viz-note">${b.note}</div>` : ''}
                             </div>`;
@@ -3062,18 +3059,21 @@ function renderPopularityReality() {
 
     if (allSongsData.length === 0) return;
 
-    // Add SVG container
-    inner.innerHTML += `
-        <div class="popularity-scatter-container fade-in">
-            <svg class="popularity-scatter" id="popularity-scatter"></svg>
-        </div>
-        <div class="outlier-list fade-in" id="outlier-list"></div>
-    `;
+    // Add SVG container via DOM API (innerHTML += breaks SVG on mobile Chrome)
+    const scatterWrapper = document.createElement('div');
+    scatterWrapper.className = 'popularity-scatter-container fade-in';
+    inner.appendChild(scatterWrapper);
 
-    const svg = d3.select('#popularity-scatter');
+    const outlierDiv = document.createElement('div');
+    outlierDiv.className = 'outlier-list fade-in';
+    outlierDiv.id = 'outlier-list';
+    inner.appendChild(outlierDiv);
+
+    const svg = d3.select(scatterWrapper).append('svg')
+        .attr('class', 'popularity-scatter')
+        .attr('id', 'popularity-scatter');
     const isMobile = window.innerWidth < 768;
-    const scatterContainer = document.querySelector('.popularity-scatter-container');
-    const width = scatterContainer ? scatterContainer.clientWidth : inner.clientWidth;
+    const width = scatterWrapper.clientWidth || inner.clientWidth || inner.offsetWidth || 600;
     const height = isMobile ? 350 : 500;
     const margin = isMobile
         ? { top: 15, right: 15, bottom: 50, left: 45 }
@@ -3219,17 +3219,22 @@ function renderYearVsScore() {
     const data = STORIES.league_stories.year_vs_score;
     if (!data || !data.scatter_data || data.scatter_data.length === 0) return;
 
-    inner.innerHTML += `
-        <div class="insights-subsection fade-in">
-            <div class="year-scatter-container">
-                <svg class="year-scatter-chart" id="year-scatter-chart"></svg>
-                <div class="coverage-stat" id="year-coverage"></div>
-            </div>
-        </div>
-    `;
+    // Build DOM via createElement (innerHTML += breaks SVG on mobile Chrome)
+    const subsection = document.createElement('div');
+    subsection.className = 'insights-subsection fade-in';
+    const yearContainer = document.createElement('div');
+    yearContainer.className = 'year-scatter-container';
+    subsection.appendChild(yearContainer);
+    const coverageDiv = document.createElement('div');
+    coverageDiv.className = 'coverage-stat';
+    coverageDiv.id = 'year-coverage';
+    yearContainer.appendChild(coverageDiv);
+    inner.appendChild(subsection);
 
-    const svg = d3.select('#year-scatter-chart');
-    const width = inner.clientWidth;
+    const svg = d3.select(yearContainer).insert('svg', ':first-child')
+        .attr('class', 'year-scatter-chart')
+        .attr('id', 'year-scatter-chart');
+    const width = inner.clientWidth || inner.offsetWidth || 600;
     const height = window.innerWidth < 768 ? 280 : 350;
     const margin = { top: 30, right: 30, bottom: 50, left: 60 };
 
@@ -3323,17 +3328,22 @@ function renderGenreBoxPlots() {
     const data = STORIES.league_stories.genre_vs_score;
     if (!data || !data.box_plots || data.box_plots.length === 0) return;
 
-    inner.innerHTML += `
-        <div class="insights-subsection fade-in">
-            <div class="genre-boxplots-container">
-                <svg class="genre-boxplots-chart" id="genre-boxplots-chart"></svg>
-                <div class="coverage-stat" id="genre-coverage"></div>
-            </div>
-        </div>
-    `;
+    // Build DOM via createElement (innerHTML += breaks SVG on mobile Chrome)
+    const subsection = document.createElement('div');
+    subsection.className = 'insights-subsection fade-in';
+    const genreContainer = document.createElement('div');
+    genreContainer.className = 'genre-boxplots-container';
+    subsection.appendChild(genreContainer);
+    const coverageDiv = document.createElement('div');
+    coverageDiv.className = 'coverage-stat';
+    coverageDiv.id = 'genre-coverage';
+    genreContainer.appendChild(coverageDiv);
+    inner.appendChild(subsection);
 
-    const svg = d3.select('#genre-boxplots-chart');
-    const width = inner.clientWidth;
+    const svg = d3.select(genreContainer).insert('svg', ':first-child')
+        .attr('class', 'genre-boxplots-chart')
+        .attr('id', 'genre-boxplots-chart');
+    const width = inner.clientWidth || inner.offsetWidth || 600;
     const height = window.innerWidth < 768 ? 280 : 350;
     const margin = { top: 20, right: 30, bottom: 100, left: 60 };
 
@@ -3434,15 +3444,20 @@ function renderDecadeMachine() {
     const decades = Object.keys(leagueDecades).sort();
     if (decades.length === 0) return;
 
-    inner.innerHTML += `
-        <div class="decade-chart-container fade-in">
-            <svg class="decade-chart" id="decade-chart"></svg>
-        </div>
-        <div class="decade-awards fade-in" id="decade-awards"></div>
-    `;
+    // Build DOM via createElement (innerHTML += breaks SVG on mobile Chrome)
+    const chartContainer = document.createElement('div');
+    chartContainer.className = 'decade-chart-container fade-in';
+    inner.appendChild(chartContainer);
 
-    const svg = d3.select('#decade-chart');
-    const width = inner.clientWidth;
+    const awardsDiv = document.createElement('div');
+    awardsDiv.className = 'decade-awards fade-in';
+    awardsDiv.id = 'decade-awards';
+    inner.appendChild(awardsDiv);
+
+    const svg = d3.select(chartContainer).append('svg')
+        .attr('class', 'decade-chart')
+        .attr('id', 'decade-chart');
+    const width = inner.clientWidth || inner.offsetWidth || 600;
     const isMobile = window.innerWidth < 768;
     const height = isMobile ? 300 : 400;
     const margin = { top: 20, right: 30, bottom: 80, left: 60 };
