@@ -1601,7 +1601,7 @@ const ROUND_NARRATIVES = [
     {
         commentary: [],
         awards: [
-            { label: 'Hipster Win', winner: 'Ghandi El-Chamaa', caption: 'Won with lowest Last.fm listener count of the round (197)' },
+            { label: 'Hipster Win', winner: 'Ghandi El-Chamaa', caption: 'Won with just 197 Last.fm listeners. The hipster\'s hipster.' },
             { label: 'Sob Story (1 of 2)', winner: 'basssbear', caption: 'Told a burnout story. Tied 2nd. It really worked.' },
             { label: 'Le Cleclec Award', winner: 'Le Cleclec', caption: 'Most controversial song: NIN\'s "We\'re In This Together" (variance 1.29)' }
         ],
@@ -1615,6 +1615,8 @@ const ROUND_NARRATIVES = [
             { label: 'Career Best', winner: 'Gisele Neves', caption: 'Lucro by BaianaSystem: 16pts. Season high for Gisele.' },
             { label: 'Career Best', winner: 'sarah', caption: 'Tu Vuo Fa L\'Americano: 16pts. Season high for sarah.' },
             { label: 'Career Worst', winner: 'Ben', caption: 'Kommienezuspadt by Tom Waits: -1pts. 6 downvotes. Season low for Ben.' },
+            { label: 'First Negative Score', winner: 'Ben', caption: 'Kommienezuspadt by Tom Waits: -1pts. The league\'s first negative score.' },
+            { label: 'Career Worst', winner: 'Adrian', caption: 'Komm gib mir deine Hand by The Beatles: 1pt. 2 downvotes. Early-season low for Adrian.' },
             { label: 'Outlier Round', winner: '61% of songs', caption: '11 of 18 songs are league-wide top/bottom 10% outliers for score or variance.' },
             { label: 'Le Cleclec Award', winner: 'Kate Hitchcock', caption: 'Most controversial: B-complex "Beautiful Lies VIP" (variance 1.17). Sung in a made-up language.' }
         ],
@@ -1632,7 +1634,6 @@ const ROUND_NARRATIVES = [
             { label: 'Career Best', winner: 'Shimonster', caption: 'Bad Kingdom by Moderat: 18pts. Round win. Season high for Shimonster.' },
             { label: 'Career Best', winner: 'annamariawh', caption: 'Everyday I Have The Blues by B.B. King: 17pts. 0 downvotes. Season high. Jumped +8 from Round 2.' },
             { label: 'Career Worst', winner: 'Sin', caption: 'I Zimbra by Talking Heads: 1pt. Season low. Dropped from 9 in R2.' },
-            { label: 'Career Worst', winner: 'Adrian', caption: 'Are We the Waiting by Green Day: 2pts. 4 downvotes. Season low for Adrian.' },
             { label: 'Genre Skew', winner: '50% of songs', caption: '9 of 18 submissions are rock. "Live album" apparently means "guitar solo."' },
             { label: 'Consensus Round', winner: '50% of songs', caption: '9 of 18 songs received zero downvotes.' },
             { label: 'Photo Finish', winner: 'Shimonster', caption: 'Wins by 1 point over annamariawh (18 vs 17). Tightest margin so far.' }
@@ -1642,18 +1643,18 @@ const ROUND_NARRATIVES = [
             { text: 'The soundtrack to a lift in a retirement home in purgatory.', author_name: 'Matt', song_title: 'Dreams - Live 1977' },
             { text: 'It\'s like you can hear the crowd slipping into their mid-life crises in real time. I know it\'s a classic but just leaves me cold. I didn\'t want to downvote it but it had to go somewhere.', author_name: 'Ben', song_title: 'Dreams - Live 1977' }
         ],
-        data_callout: 'Gisele and Shimonster tied at 45pts. 6 players within 16pts of the lead.'
+        data_callout: 'Gisele and Shimonster tied at 45pts. 9 players within 16pts of the lead.'
     },
     // Round 4: Love is the Answer
     {
         commentary: [],
         awards: [
-            { label: 'Famous Song Penalty', winner: '3 songs with 8M+ plays', caption: 'The Clash, Alice In Chains, Human League. Combined: 10pts. Average: 3.3pts.' },
+            { label: 'Famous Song Penalty', winner: '2 songs 8M+, 1 song 7.38M', caption: 'The Clash, Alice In Chains, Human League. Combined: 10pts. Average: 3.3pts.' },
             { label: 'Obscurity Premium', winner: 'RA', caption: '"Where Did You Go?" has 7 Last.fm plays. Scored 13pts.' },
             { label: 'The Poppy Gambit', winner: 'Shimonster', caption: '"have you had enough?" — 5 downvotes, 2 max votes. "Noise. Just noise." — sarah' },
-            { label: 'Knife-Edge Standings', winner: 'Top 7', caption: 'Separated by just 8 points (51-43). Any single strong round could reshuffle everything.' },
-            { label: 'The Quiet Climb', winner: 'Juju', caption: 'Wins from 11th place with Melody Gardot\'s "Who Will Comfort Me." 16pts.' },
-            { label: 'Grunge Tax', winner: 'Gisele Neves', caption: 'Led for 3 rounds. Submits Alice In Chains\' "Would?" (8.85M plays). 4 points. Lead gone.' }
+            { label: 'Knife-Edge Standings', winner: 'Top 6', caption: 'Separated by just 8 points (51-43). Any single strong round could reshuffle everything.' },
+            { label: 'The Quiet Climb', winner: 'Juju', caption: 'Wins from 10th place with Melody Gardot\'s "Who Will Comfort Me." 16pts.' },
+            { label: 'Grunge Tax', winner: 'Gisele Neves', caption: 'Led for 2 rounds. Submits Alice In Chains\' "Would?" (8.85M plays). 4 points. Lead gone.' }
         ],
         featured_comments: [
             { text: 'Who hurt you? Was it the frog?', author_name: 'Kate Hitchcock', song_title: 'Why Is a Frog Too?' },
@@ -1671,7 +1672,7 @@ const ROUND_NARRATIVES = [
             { label: 'Thanks for Listening Award', winner: 'Top 3 finishers', caption: 'Morcheeba, Smoke City, Massive Attack. Three trip-hop tracks from \'97-\'98 in the top 4.' },
             { label: 'Le Cleclec Award', winner: 'Le Cleclec', caption: '"Underneath the Waves" by Strapping Young Lad: 0pts, 7 downvotes. Industrial metal for a water round.' },
             { label: 'Freefall', winner: 'Gisele Neves', caption: 'Led the league in Rounds 2-3. Now 7th. 7 points over the last 2 rounds while sarah scored 29.' },
-            { label: 'Deep Cut Dividend', winner: 'Kate Hitchcock', caption: '"Salt Water" by Bedouin Soundclash: 6,998 Last.fm plays. Tied for 1st. Second consecutive top-2 finish.' },
+            { label: 'Deep Cut Dividend', winner: 'Kate Hitchcock', caption: '"Salt Water" by Bedouin Soundclash: 6,998 Last.fm plays. Tied for 1st. Second consecutive top-3 finish.' },
             { label: 'Famous Song Penalty', winner: 'Adrian & Surrealist', caption: '"Nightswimming" (3.2M plays) → 4pts. "When the Levee Breaks" (1.9M plays) → 8pts. Classics keep getting punished.' }
         ],
         featured_comments: [
@@ -1688,9 +1689,9 @@ const ROUND_NARRATIVES = [
             { label: 'Compound Interest', winner: 'Kate Hitchcock', caption: 'R4: 14pts. R5: 15pts. R6: 13pts. Three consecutive top-3 finishes. Takes the overall lead.' },
             { label: 'Career Best', winner: 'RA', caption: '"Ms. Fat Booty" by Mos Def: 15pts. Jumped from 11th to 9th.' },
             { label: 'Country Music Penalty', winner: 'sarah', caption: '"Goodbye Earl" by The Chicks: 5pts. "I really hate country music, sorry" — Shimonster' },
-            { label: 'Le Cleclec Award', winner: 'Le Cleclec', caption: '"Oh No!" by MARINA: -2pts. First negative score in league. 6 downvotes, 0 upvotes.' },
+            { label: 'Le Cleclec Award', winner: 'Le Cleclec', caption: '"Oh No!" by MARINA: -2pts. Worst score yet. 6 downvotes, 0 max votes.' },
             { label: 'Famous Song Exception', winner: 'annamariawh', caption: '"Fast Car" (10.9M plays) → 11pts.' },
-            { label: 'Bloodbath Round', winner: '3 submissions', caption: 'Scored 0 or below. First time. Widest gap yet: 18 points between best and worst.' }
+            { label: 'Bloodbath Round', winner: '3 submissions', caption: 'Scored 0 or below. First time. 18-point gap between best and worst.' }
         ],
         micro_viz: {
             title: "Ben's Body Count Ledger",
@@ -1715,7 +1716,7 @@ const ROUND_NARRATIVES = [
             { text: 'There was stiff competition for the downvote this week but you managed to nail it with the quickest skip of all. Well done!', author_name: 'RA', song_title: 'Oh No!' },
             { text: 'I just wanna change I just wanna change I just wanna change the song as soon as humanly possible', author_name: 'Matt', song_title: 'Oh No!' }
         ],
-        data_callout: 'Lead change #4: Kate takes 1st (73pts). 4 different leaders in 6 rounds.'
+        data_callout: 'Lead change #4: Kate takes 1st (73pts). 5 different leaders in 6 rounds.'
     },
     // Round 7: Mourning Has Broken
     {
@@ -1743,7 +1744,7 @@ const ROUND_NARRATIVES = [
             { label: "Gisele's Redemption", winner: 'Gisele Neves', caption: 'From 0pts (Thriller, R7) to 15pts (tied 1st, R8). "The Lost Jungle of Booshi" has 14 Last.fm plays. Most obscure winner of the season.' },
             { label: 'Career Best', winner: 'LadyJane', caption: '"Horse Outside" by The Rubberbandits: 15pts, tied 1st. "The pissest budgie. Half horse half bird. Hippogriff!" — Ben' },
             { label: "basssbear's Trough", winner: 'basssbear', caption: '"shitcorebabes" by Shoebill: 1pt. Career worst. The low point from which the late-season comeback will seem impossible.' },
-            { label: 'Famous Song Penalty', winner: 'Kate Hitchcock', caption: '"Bat Country" by Avenged Sevenfold (9.3M plays) → 4pts. Kate\'s lowest since R1. The consistency machine has a misfire.' },
+            { label: 'Famous Song Penalty', winner: 'Kate Hitchcock', caption: '"Bat Country" by Avenged Sevenfold (9.3M plays) → 4pts. Kate\'s career low. The consistency machine has a misfire.' },
             { label: 'Compression Round', winner: 'The field', caption: 'Winner scores only 15pts — lowest winning score in rounds. 7th place scores 12. Nobody knows what "weird" means.' }
         ],
         featured_comments: [
@@ -1751,13 +1752,13 @@ const ROUND_NARRATIVES = [
             { text: 'I discern neither piss nor budgies', author_name: 'Kate Hitchcock', song_title: 'How The Leopard Got Its Spots' },
             { text: 'A point for each of my children born to this.', author_name: 'Ghandi El-Chamaa', song_title: 'Hanuman Chalisa' }
         ],
-        data_callout: 'basssbear scores 1pt — the lowest non-negative score. Ghandi leads at 107.'
+        data_callout: 'basssbear scores 1pt — the lowest positive score. Ghandi leads at 107.'
     },
     // Round 9: Exit Music
     {
         commentary: [],
         awards: [
-            { label: 'The Quiet Climb', winner: 'Juju', caption: '13th after R1. 3rd after R9. Never won a round. Averaging 13.3pts over last 3 rounds.' },
+            { label: 'The Quiet Climb', winner: 'Juju', caption: '13th after R1. 3rd after R9. Just one round win so far. Averaging 13.3pts over last 3 rounds.' },
             { label: 'Career Best', winner: 'Matt', caption: '"Trust Issues" by Coco Bryce: 16pts, tied 1st. First round win.' },
             { label: 'Ghandi Vulnerable', winner: 'Ghandi El-Chamaa', caption: 'Submits Rodríguez, scores 7pts. Lead shrinks from 16 to 11.' },
             { label: 'Wrong Track', winner: 'LadyJane', caption: '"Kingdom" by Maribou State: 12pts. It\'s the second track on the album, not the last.' },
@@ -1778,7 +1779,7 @@ const ROUND_NARRATIVES = [
             { label: "Ghandi's Career Worst", winner: 'Ghandi El-Chamaa', caption: '"Evergreen" by Richy Mitch & The Coal Miners. 4pts — 7.6 below his average. Still 1st, but the cushion is thinning.' },
             { label: 'Algorithm Leveller', winner: 'LadyJane', caption: 'Wins with 14pts and zero max votes. 13 voters, all moderate. The algorithm gave everyone mid-tier ammo.' },
             { label: 'The Igorrr Fanclub', winner: 'Shimonster & basssbear', caption: '3pts each for "Pallbearer." "Shimmy vote bait. Of course I absolutely love this." Five others downvote it.' },
-            { label: "Matt's Vanishing Act", winner: 'Matt', caption: 'Scores 0. Drops from 5th to 9th. Four places in one round. The biggest single-round slide of the season so far.' }
+            { label: "Matt's Vanishing Act", winner: 'Matt', caption: 'Scores 0. Drops from 5th to 9th. Four places in one round.' }
         ],
         featured_comments: [
             { text: 'I will give this a point just because when I first saw the playlist I thought it said sponge Bob square pants. And then upon listening, I did like it.', author_name: 'Juju', song_title: 'Nothing Is Something Worth Doing' },
@@ -1793,7 +1794,7 @@ const ROUND_NARRATIVES = [
             { label: 'The Lloyd Webber Incident', winner: 'sarah', caption: '"Jacob and Sons / Joseph\'s Coat." -1pts. Career worst by a mile — 10.3 below her average. 4 downvotes.' },
             { label: 'Career Best x2', winner: 'Kate Hitchcock & Adrian', caption: 'Kate: 16pts with "The Golden Fleece." Adrian: 15pts with "Green Light." Two career bests in one round. Kate leaps from 7th to 3rd.' },
             { label: 'DnB Supremacy', winner: 'Adrian & basssbear', caption: 'Green Light (15) + Green Tea Ice Cream (14). DnB averages 14.5.' },
-            { label: 'The Two-Point Gap', winner: 'Ghandi & Juju', caption: '127 vs 125. From 18pts behind after R1 to breathing distance. ' },
+            { label: 'The Two-Point Gap', winner: 'Ghandi & Juju', caption: '127 vs 125. From 11pts behind after R1 to breathing distance. ' },
             { label: "Shimonster's Freefall", winner: 'Shimonster', caption: '4th to 9th. Five places down in one round. "Blood In The River" — 4pts.' },
             { label: 'Le Cleclec Award', winner: 'Le Cleclec', caption: '1pt with Incubus. 4 negative votes. "I can\'t believe this is Incubus" — Sin.' }
         ],
@@ -1813,7 +1814,7 @@ const ROUND_NARRATIVES = [
             { label: "basssbear's Comeback", winner: 'basssbear', caption: '15pts. 11th to 6th. "Back to Your Roots" — on the vocals, Bradley from S Club 7. Ben: "Genuinely shocked. Mind blown."' },
             { label: 'The 15-Point Club', winner: 'Kate, basssbear & Matt', caption: 'Three players tie at 15pts. Kate with SBTRKT, basssbear with Jonny L, Matt with Asian Dub Foundation. The collaboration round collaborates on a three-way tie.' },
             { label: "sarah's Slide", winner: 'sarah', caption: '4th to 9th. "Bam" by JAY-Z & Damian Marley. 2pts. Five places down in one round.' },
-            { label: "LadyJane's Crash Landing", winner: 'LadyJane', caption: 'Wins R10. Career worst R12. "Don\'t Judge Me" — 1pt. The league judged.' }
+            { label: "LadyJane's Crash Landing", winner: 'LadyJane', caption: 'Wins R10. Matches career worst in R12. "Don\'t Judge Me" — 1pt. The league judged.' }
         ],
         featured_comments: [
             { text: "I'm sorry gently warbling a saxophone in the vicinity of a choir warming up for the lord of the rings soundtrack session does not make for a surprising collaboration. Feels like you could license it to a posh spa for the sauna tho", author_name: 'basssbear', song_title: 'Parce Mihi Domine' },
@@ -1827,9 +1828,9 @@ const ROUND_NARRATIVES = [
     {
         commentary: [],
         awards: [
-            { label: "Ben's Zero", winner: 'Ben', caption: '"A Life Less Ordinary" by Ash. 0pts. Career worst. 4 negative votes. Matt\'s entire review: "A Song So Ordinary."' },
+            { label: "Ben's Zero", winner: 'Ben', caption: '"A Life Less Ordinary" by Ash. 0pts. Joint worst zero. 4 negative votes. Matt\'s entire review: "A Song So Ordinary."' },
             { label: 'Famous Song Penalty', winner: 'Skyfall & Gangsta\'s Paradise', caption: "13M + 12M Last.fm plays, both mid-table. The Kiss (460K plays): 14pts." },
-            { label: 'Le Cleclec Award', winner: 'Gisele Neves', caption: 'Most controversial submission. "Circle of Life" — variance 1.08, 3 negatives. Matt: "I never want to hear this song again. Ever." 11pts.' },
+            { label: 'Le Cleclec Award', winner: 'Gisele Neves', caption: 'Most controversial submission. "Circle of Life" — variance 1.08, 3 negatives. Bino: "I like the first 30 seconds or so but then falls off a cliff." 11pts.' },
             { label: "Le Cleclec's Best Round", winner: 'Le Cleclec', caption: '12pts with Requiem for a Dream. 3rd place. Miles above usual average. "Couldn\'t be arsed trawling through 15 versions to find the wistful one."' }
         ],
         featured_comments: [
@@ -1843,9 +1844,8 @@ const ROUND_NARRATIVES = [
     {
         commentary: [],
         awards: [
-            { label: "Juju's Imperial Phase", winner: 'Juju', caption: '18, 7, 18, 17 in last 4 rounds. Two wins in three. Lead extends to 9pts. Maximum dominance.' },
-            { label: "Kate's Career Best", winner: 'Kate Hitchcock', caption: '16pts with "Break Apart" by Bonobo & Rhye. Highest score of her season. Solidifies 3rd.' },
-            { label: 'The 135-Year Spread', winner: 'Sin', caption: 'Erik Satie (1890) to 2022. Widest chronological range of the season.' },
+            { label: "Kate's Career Best", winner: 'Kate Hitchcock', caption: '16pts with "Break Apart" by Bonobo & Rhye. Matches her season high. Solidifies 3rd.' },
+            { label: 'The 132-Year Spread', winner: 'Sin', caption: 'Erik Satie (1890) to 2022.' },
             { label: 'Le Cleclec Award', winner: 'Le Cleclec', caption: 'Autechre\'s "Krib." 5pts, 3 negative votes. Erica: "I thought there was a squeaking door and then realised it was coming from the speakers."' },
             { label: "Ben's Cold Streak", winner: 'Ben', caption: '0pts (R13) then 4pts (R14). Two-round total: 4pts. The chill-out round did not chill Ben\'s slump.' },
             { label: 'The 20-Minute Flex', winner: 'Matt', caption: '"In a Silent Way" by Miles Davis. Nearly 20 minutes. Shimonster listened 3 times — nearly an hour. "Maybe my IQ is not high enough."' }
@@ -1858,15 +1858,15 @@ const ROUND_NARRATIVES = [
             { text: "It's got my downvote because of its sinister edge. When I'm zoning out, I've usually got the house to myself enjoying a micro dose. I can't do sinister", author_name: 'annamariawh', song_title: 'Gnossienne No. 1' },
             { text: "I thought there was a squeaking door somewhere at first and then realised it was coming from the speakers", author_name: 'Erica Silva', song_title: 'Krib' }
         ],
-        data_callout: 'Juju extends lead to 9 points. Imperial phase: 18, 7, 18, 17 in last 4.'
+        data_callout: 'Juju extends lead to 9 points.'
     },
     // Round 15: It Was a Very Good Year
     {
         commentary: [],
         awards: [
-            { label: 'Kate Bush Breaks the Penalty', winner: 'Ghandi El-Chamaa', caption: '19.5M Last.fm plays. 17pts. Winner. First time the most famous song actually wins. ' },
-            { label: "Kate's Whiplash", winner: 'Kate Hitchcock', caption: 'Career best (16pts, R14) → career worst (2pts, R15). "Livin\' On A Prayer." Le Cleclec\'s review: "Get in the bin."' },
-            { label: 'The Stadium Rock Massacre', winner: 'Adrian & Kate', caption: 'Eye of the Tiger: 3pts, 6 negatives. Livin\' On A Prayer: 2pts, 5 negatives. The 80s rock canon, rejected.' },
+            { label: 'Kate Bush Breaks the Penalty', winner: 'Ghandi El-Chamaa', caption: '19.5M Last.fm plays. 17pts. Winner. The biggest Last.fm play count to ever win a round.' },
+            { label: "Kate's Whiplash", winner: 'Kate Hitchcock', caption: 'Joint career best (16pts, R14) → career worst (2pts, R15). "Livin\' On A Prayer." Le Cleclec\'s review: "Get in the bin."' },
+            { label: 'The Stadium Rock Massacre', winner: 'Adrian & Kate', caption: 'Eye of the Tiger: 3pts, 6 negatives. Livin\' On A Prayer: 2pts, 3 negatives. The 80s rock canon, rejected.' },
             { label: 'The Gap Narrows', winner: 'Ghandi & Juju', caption: '9pts → 5pts in one round. Ghandi 175, Juju 180.' },
             { label: 'The Demographic X-Ray', winner: 'Everyone', caption: 'All submissions from 1978-1989. Six songs from 1982.' },
             { label: 'Le Cleclec Award', winner: 'Le Cleclec', caption: '"Only You" by Yazoo. 4pts. "Everyone else can listen to yazoo, but for my Christmas I would like Henry\'s comment on Catholic Sex by Throbbing Gristle."' }
@@ -1902,8 +1902,9 @@ const ROUND_NARRATIVES = [
             { label: 'Famous Song Penalty: Space Edition', winner: 'Erica Silva', caption: 'Muse "Plug in Baby": 1pt. 13.9M plays. Ben: "They literally have two songs with \'Black Hole\' in the title."' },
             { label: 'The Tasmin Archer Schism', winner: 'Adrian', caption: '"Sleeping Satellite": 5pts, variance 1.30. Ben: "highlight of the round." Matt: "There aren\'t even any roads in space!"' },
             { label: 'Le Cleclec Award', winner: 'Le Cleclec', caption: 'Pink Floyd "One of These Days": 2pts. Ben had already submitted it in the Live round. "Well this is awkward."' },
-            { label: 'The Lead Extends', winner: 'Juju & Ghandi', caption: 'Gap widens back to 9pts. Juju 189, Ghandi 180. But Juju\'s last 4: 13, 9, 13, 9. Flattening.' },
-            { label: "Shimonster's Space Fiction", winner: 'Shimonster', caption: 'Wrote an entire spaceship narrative in his submission comment. "Weaver" launches from a Martian spaceport. The voters gave the song 4pts.' }
+            { label: 'The Lead Extends', winner: 'Juju & Ghandi', caption: 'Gap widens back to 9pts. Juju 189, Ghandi 180. But Juju\'s last 4: 7, 17, 13, 9. Inconsistent.' },
+            { label: "Shimonster's Space Fiction", winner: 'Shimonster', caption: 'Wrote an entire spaceship narrative in his submission comment. "Weaver" launches from a Martian spaceport. The voters gave the song 9pts.' },
+            { label: 'The 138-Year Spread', winner: 'Matt & annamariawh', caption: 'Saint-Saëns (1886) to HABITAAT (2024). Widest chronological range of the season.' }
         ],
         featured_comments: [
             { text: "Lighthouse Family vibes. Insipid. Inconsequential. Firmly occupies the dead centre of the road. There aren't even any roads in space! We should be nowhere near the road, let alone in the middle of it.", author_name: 'Matt', song_title: 'Sleeping Satellite' },
@@ -1919,7 +1920,7 @@ const ROUND_NARRATIVES = [
         commentary: [],
         awards: [
             { label: 'The Turning Point', winner: 'Ghandi & Juju', caption: '198-198. Tied after 17 rounds. Ghandi closes a 9-point gap in one round. The Sick Note (18pts) vs Every Sperm Is Sacred (9pts). The lead changes for the last time.' },
-            { label: "Bino's First Win", winner: 'Bino', caption: '"Business Time" by Flight of the Conchords. 18pts. First-ever round win. basssbear: "This was gonna be my submission! Got my business socks on and everything."' },
+            { label: "Bino's 18-Point Tie", winner: 'Bino', caption: '"Business Time" by Flight of the Conchords. 18pts. Tied with Ghandi but loses on tiebreak. basssbear: "This was gonna be my submission! Got my business socks on and everything."' },
             { label: 'Le Cleclec Award', winner: 'Le Cleclec', caption: 'Mclusky "Gareth Brown Says": 1pt. ' }
         ],
         featured_comments: [
@@ -1957,7 +1958,7 @@ const ROUND_NARRATIVES = [
             { label: 'Sob Story 2 of 2', winner: 'basssbear', caption: '"Strangers" by Kenya Grace. 17pts. Career best. Won by 6.' },
             { label: "RA's Trolljob", winner: 'RA', caption: 'DnB banger in a crying round. "I am so sad when I listen to this song, it makes me cry long time." 9pts. Erica gave it max votes.' },
             { label: 'The Wedding Song', winner: 'Matt', caption: '"Love Letters" by Lord Cobra. His and Juju\'s wedding song. 6pts, 3 downvotes. Too jolly for a tearjerker round.' },
-            { label: 'The Radiohead Trap', winner: 'Gisele & Juju', caption: '"Everything In Its Right Place" (6pts) and "Analyse" (8pts). Ben: "Lots of teary Radiohead songs but this isn\'t really one."' },
+            { label: 'The Radiohead Trap', winner: 'Gisele & Juju', caption: '"Everything In Its Right Place" (6pts) and "Analyse" (8pts). Ben: "Lots of teary Radiohead songs but this isn\'t really one for me."' },
             { label: 'The 2nd Place Race', winner: 'Juju & Kate', caption: 'Tied at 202. The only race left. One round to decide the runner-up.' }
         ],
         featured_comments: [
@@ -1974,7 +1975,7 @@ const ROUND_NARRATIVES = [
         commentary: [],
         awards: [
             { label: 'The Double', winner: 'basssbear', caption: 'Back-to-back wins (R19 + R20). 32 points in the final two rounds. 9th to 5th. The closing monster.' },
-            { label: 'The Coronation', winner: 'Ghandi El-Chamaa', caption: 'Champion. 232 points. 18 ahead of second place. Mathematically unbeatable before the final round even started.' },
+            { label: 'The Coronation', winner: 'Ghandi El-Chamaa', caption: 'Champion. 232 points. 18 ahead of second place. Effectively unbeatable before the final round even started.' },
             { label: 'The Photo Finish', winner: 'Kate Hitchcock', caption: 'Tied with Juju at 202 entering the finale. Kate scored 12, Juju scored 7. Second place decided by a single round.' },
             { label: 'Le Cleclec Award', winner: 'Le Cleclec', caption: 'Finishes the season in 18th place. 109 points. Dead last. Consistent to the end.' },
             { label: "Ghandi's Commentary Theatre", winner: 'Ghandi El-Chamaa', caption: 'With the title sewn up, Ghandi spent the finale writing elaborate fight-scene narratives for every single submission. The champion\'s victory lap.' }
@@ -2666,8 +2667,8 @@ function renderChapters() {
             interstitial.id = info.id;
             interstitial.innerHTML = `
                 <div class="interstitial-inner">
-                    <h2 class="interstitial-title fade-in">${info.title}</h2>
-                    <p class="interstitial-subtitle fade-in">${info.subtitle}</p>
+                    <h2 class="interstitial-title">${info.title}</h2>
+                    <p class="interstitial-subtitle">${info.subtitle}</p>
                 </div>
             `;
             chaptersDiv.appendChild(interstitial);
@@ -2683,6 +2684,12 @@ function renderPrologue() {
 
     content.innerHTML = `
         <h1 class="story-title fade-in">FML II:<br><span class="accent">A retrospective</span></h1>
+        <div class="thesis-byline fade-in" style="text-align: center; margin-top: var(--space-lg); margin-bottom: var(--space-lg);">
+            <p style="font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.15em; color: var(--muted);">A thesis submitted in partial fulfilment of the requirements for the degree of</p>
+            <p style="font-size: var(--text-lg); letter-spacing: -0.02em; margin: var(--space-sm) 0;">Doctor of Philosophy<br><span class="accent" style="font-size: var(--text-sm);">(Applied Piss Budgies Studies)</span></p>
+            <p style="font-size: var(--text-sm); color: var(--muted); margin-top: var(--space-md);">Dr B. Bear &amp; Dr C. Laudiwinks</p>
+            <p style="font-size: var(--text-xs); color: var(--muted); font-style: italic;">The Royal Institute of Unsolicited Opinions, 2026</p>
+        </div>
         <div class="hero-stats fade-in">
             <div class="hero-stat">
                 <div class="hero-stat-number">20</div>
