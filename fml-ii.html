@@ -3923,12 +3923,13 @@ function setupLazyScorecards() {
 Promise.all([
     fetch('data.json').then(r => r.json()),
     fetch('comment_enrichment.json').then(r => r.json()).catch(() => null),
-    fetch('stories.json').then(r => r.json()).catch(() => null)
+    fetch('stories.json').then(r => { if (!r.ok) throw new Error(`stories.json: ${r.status}`); return r.json(); }).catch(e => { console.error('Failed to load stories.json:', e); return null; })
 ])
 .then(([data, comments, stories]) => {
     DATA = data;
     COMMENTS = comments;
     STORIES = stories;
+    if (!STORIES) console.warn('STORIES is null — all analytics charts will be skipped');
 
     // Assign colors
     assignPlayerColors(DATA.players);
@@ -3952,10 +3953,9 @@ Promise.all([
 
     // Render STORIES-dependent interstitials
     if (STORIES) {
-        renderPopularityReality();
-        renderYearVsScore();
-        renderGenreBoxPlots();
-        renderDecadeMachine();
+        [renderPopularityReality, renderYearVsScore, renderGenreBoxPlots, renderDecadeMachine].forEach(fn => {
+            try { fn(); } catch (e) { console.error(`${fn.name} failed:`, e); }
+        });
     }
 
     // Setup interactions
