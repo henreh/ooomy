@@ -932,8 +932,9 @@
         }
 
         .popularity-scatter {
+            display: block;
             width: 100%;
-            height: 500px;
+            max-height: 500px;
         }
 
         .outlier-list {
@@ -1407,7 +1408,7 @@
             }
 
             .popularity-scatter {
-                height: 350px;
+                max-height: 350px;
             }
 
             .year-scatter-chart,
@@ -3072,11 +3073,18 @@ function renderPopularityReality() {
     `;
 
     const svg = d3.select('#popularity-scatter');
-    const width = inner.clientWidth;
-    const height = window.innerWidth < 768 ? 350 : 500;
-    const margin = { top: 20, right: 30, bottom: 60, left: 70 };
+    const isMobile = window.innerWidth < 768;
+    const container = document.querySelector('.popularity-scatter-container');
+    const width = container ? container.clientWidth : inner.clientWidth;
+    const height = isMobile ? 350 : 500;
+    const margin = isMobile
+        ? { top: 15, right: 15, bottom: 50, left: 45 }
+        : { top: 20, right: 30, bottom: 60, left: 70 };
 
-    svg.attr('width', width).attr('height', height);
+    svg.attr('viewBox', `0 0 ${width} ${height}`)
+       .style('display', 'block')
+       .style('width', '100%')
+       .style('height', 'auto');
 
     const sleeperUris = new Set((sleeper_hits || []).map(s => s.spotify_uri));
     const hypeUris = new Set((hype_tax_victims || []).map(s => s.spotify_uri));
@@ -3104,30 +3112,30 @@ function renderPopularityReality() {
     // Axes
     svg.append('g')
         .attr('transform', `translate(0, ${height - margin.bottom})`)
-        .call(d3.axisBottom(x).ticks(5).tickFormat(d => d3.format('.2s')(d)))
+        .call(d3.axisBottom(x).ticks(isMobile ? 3 : 5).tickFormat(d => d3.format('.2s')(d)))
         .selectAll('text').attr('fill', 'var(--muted)');
 
     svg.append('g')
         .attr('transform', `translate(${margin.left}, 0)`)
-        .call(d3.axisLeft(y))
+        .call(d3.axisLeft(y).ticks(isMobile ? 5 : null))
         .selectAll('text').attr('fill', 'var(--muted)');
 
     svg.selectAll('line').attr('stroke', 'var(--border)');
     svg.selectAll('path.domain').attr('stroke', 'var(--border)');
 
     svg.append('text').attr('x', width / 2).attr('y', height - 10)
-        .attr('fill', 'var(--muted)').attr('text-anchor', 'middle').attr('font-size', '12px')
+        .attr('fill', 'var(--muted)').attr('text-anchor', 'middle').attr('font-size', isMobile ? '10px' : '12px')
         .text('Last.fm Listeners (log scale)');
 
-    svg.append('text').attr('transform', 'rotate(-90)').attr('x', -height / 2).attr('y', 15)
-        .attr('fill', 'var(--muted)').attr('text-anchor', 'middle').attr('font-size', '12px')
+    svg.append('text').attr('transform', 'rotate(-90)').attr('x', -height / 2).attr('y', isMobile ? 10 : 15)
+        .attr('fill', 'var(--muted)').attr('text-anchor', 'middle').attr('font-size', isMobile ? '10px' : '12px')
         .text('League Score');
 
     // Background dots (inside clipped plot area)
     plotArea.selectAll('circle.bg-point').data(backgroundSongs).enter()
         .append('circle').attr('class', 'bg-point')
         .attr('cx', d => x(d.listeners)).attr('cy', d => y(d.league_score))
-        .attr('r', 4).attr('fill', 'var(--muted)').attr('opacity', 0.3)
+        .attr('r', isMobile ? 3 : 4).attr('fill', 'var(--muted)').attr('opacity', 0.3)
         .on('mouseover', function(event, d) {
             svg.selectAll('circle').attr('opacity', 0.1);
             d3.select(this).attr('r', 8).attr('opacity', 0.8);
@@ -3144,7 +3152,7 @@ function renderPopularityReality() {
     plotArea.selectAll('circle.outlier-point').data(outlierSongs).enter()
         .append('circle').attr('class', 'outlier-point')
         .attr('cx', d => x(d.listeners)).attr('cy', d => y(d.league_score))
-        .attr('r', 8)
+        .attr('r', isMobile ? 6 : 8)
         .attr('fill', d => sleeperUris.has(d.spotify_uri) ? 'var(--accent2)' : 'var(--accent)')
         .attr('opacity', 0.85)
         .attr('stroke', d => sleeperUris.has(d.spotify_uri) ? 'var(--accent2)' : 'var(--accent)')
