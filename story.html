@@ -2662,12 +2662,12 @@ function renderChapters() {
         if (interstitialMap[i]) {
             const info = interstitialMap[i];
             const interstitial = document.createElement('section');
-            interstitial.className = 'interstitial fade-in';
+            interstitial.className = 'interstitial';
             interstitial.id = info.id;
             interstitial.innerHTML = `
                 <div class="interstitial-inner">
-                    <h2 class="interstitial-title">${info.title}</h2>
-                    <p class="interstitial-subtitle">${info.subtitle}</p>
+                    <h2 class="interstitial-title fade-in">${info.title}</h2>
+                    <p class="interstitial-subtitle fade-in">${info.subtitle}</p>
                 </div>
             `;
             chaptersDiv.appendChild(interstitial);
