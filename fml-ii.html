@@ -3072,8 +3072,8 @@ function renderPopularityReality() {
 
     const svg = d3.select('#popularity-scatter');
     const isMobile = window.innerWidth < 768;
-    const container = document.querySelector('.popularity-scatter-container');
-    const width = container ? container.clientWidth : inner.clientWidth;
+    const scatterContainer = document.querySelector('.popularity-scatter-container');
+    const width = scatterContainer ? scatterContainer.clientWidth : inner.clientWidth;
     const height = isMobile ? 350 : 500;
     const margin = isMobile
         ? { top: 15, right: 15, bottom: 50, left: 45 }
