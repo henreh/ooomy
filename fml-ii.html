@@ -2783,7 +2783,7 @@ function buildAwardsHtml() {
         'juggernaut': 'Ruled the league', 'critic': 'Hard to please', 'cheerleader': 'Spreads the love',
         'one_hit_wonder': 'Lightning in a bottle', 'consistent': 'Steady as she goes',
         'wildcard': 'Expect the unexpected', 'hipster': "You wouldn't know them",
-        'crowd_pleaser': 'Follows the herd', 'introducer': 'Fresh sounds only',
+        'crowd_pleaser': 'Follows the herd',
         'soulmates': 'Two peas in a pod', 'clutch': 'Peaks when it counts',
         'slow_starter': 'Better late than never', 'unanimous_banger': 'Everyone agreed',
         'marmite': 'Love it or hate it', 'hidden_gem': 'Cult classic status'
@@ -2839,8 +2839,7 @@ function buildAwardsHtml() {
         { key: 'wildcard', title: 'The Wildcard', category: 'Player Award' },
         { key: 'hipster', title: 'The Hipster', category: 'Voting Award' },
         { key: 'crowd_pleaser', title: 'Crowd Pleaser', category: 'Voting Award' },
-        { key: 'introducer', title: 'The Introducer', category: 'Player Award' },
-        { key: 'soulmates', title: 'Musical Soulmates', category: 'Special Award', customWinner: a => `${a.player1} & ${a.player2}` },
+{ key: 'soulmates', title: 'Musical Soulmates', category: 'Special Award', customWinner: a => `${a.player1} & ${a.player2}` },
         { key: 'clutch', title: 'Clutch Player', category: 'Player Award' },
         { key: 'slow_starter', title: 'Slow Starter', category: 'Player Award' },
         { key: 'unanimous_banger', title: 'Unanimous Banger', category: 'Song Award', customWinner: a => `"${a.title}" – ${a.submitter}` },
