@@ -1543,8 +1543,7 @@
 
 <!-- Footer -->
 <footer>
-    <p>FML II: A retrospective &mdash; Music League II in 20 rounds and 7 deep dives</p>
-    <p style="margin-top: var(--space-sm);"><a href="index.html">Back to Dashboard</a></p>
+    <p>FML II: A retrospective </p>
 </footer>
 
 <script>
@@ -3238,7 +3237,10 @@ function renderYearVsScore() {
     const height = window.innerWidth < 768 ? 280 : 350;
     const margin = { top: 30, right: 30, bottom: 50, left: 60 };
 
-    svg.attr('width', width).attr('height', height);
+    svg.attr('viewBox', `0 0 ${width} ${height}`)
+       .style('display', 'block')
+       .style('width', '100%')
+       .style('height', 'auto');
 
     const g = svg.append('g').attr('transform', `translate(${margin.left}, ${margin.top})`);
     const chartWidth = width - margin.left - margin.right;
@@ -3347,7 +3349,10 @@ function renderGenreBoxPlots() {
     const height = window.innerWidth < 768 ? 280 : 350;
     const margin = { top: 20, right: 30, bottom: 100, left: 60 };
 
-    svg.attr('width', width).attr('height', height);
+    svg.attr('viewBox', `0 0 ${width} ${height}`)
+       .style('display', 'block')
+       .style('width', '100%')
+       .style('height', 'auto');
 
     const g = svg.append('g').attr('transform', `translate(${margin.left}, ${margin.top})`);
     const chartWidth = width - margin.left - margin.right;
@@ -3462,7 +3467,10 @@ function renderDecadeMachine() {
     const height = isMobile ? 300 : 400;
     const margin = { top: 20, right: 30, bottom: 80, left: 60 };
 
-    svg.attr('width', width).attr('height', height);
+    svg.attr('viewBox', `0 0 ${width} ${height}`)
+       .style('display', 'block')
+       .style('width', '100%')
+       .style('height', 'auto');
 
     function decadeToYear(decade) {
         const match = decade.match(/(\d{4})s/);
@@ -3932,6 +3940,38 @@ function setupLazyScorecards() {
     $$('.scorecard').forEach(sc => scorecardObserver.observe(sc));
 }
 
+function setupLazyInterstitials() {
+    const interstitialCharts = {
+        'interstitial-popularity': renderPopularityReality,
+        'interstitial-year': renderYearVsScore,
+        'interstitial-genre': renderGenreBoxPlots,
+        'interstitial-decade': renderDecadeMachine
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting && !entry.target.dataset.chartRendered) {
+                const fn = interstitialCharts[entry.target.id];
+                if (fn) {
+                    try { fn(); } catch (e) { console.error(`${fn.name} failed:`, e); }
+                    entry.target.dataset.chartRendered = 'true';
+                    observer.unobserve(entry.target);
+                    // Trigger fade-in for newly created .fade-in children
+                    // (they missed the initial setupScrollObservers() scan)
+                    requestAnimationFrame(() => {
+                        entry.target.querySelectorAll('.fade-in').forEach(el => el.classList.add('visible'));
+                    });
+                }
+            }
+        });
+    }, { rootMargin: '200px' });
+
+    Object.keys(interstitialCharts).forEach(id => {
+        const el = document.getElementById(id);
+        if (el) observer.observe(el);
+    });
+}
+
 // =====================================================
 // INITIALIZATION
 // =====================================================
@@ -3944,7 +3984,15 @@ Promise.all([
     DATA = data;
     COMMENTS = comments;
     STORIES = stories;
-    if (!STORIES) console.warn('STORIES is null — all analytics charts will be skipped');
+    if (!STORIES) {
+        console.warn('STORIES is null — all analytics charts will be skipped');
+        document.querySelectorAll('.interstitial').forEach(el => {
+            if (['interstitial-popularity','interstitial-year','interstitial-genre','interstitial-decade'].includes(el.id)) {
+                el.querySelector('.interstitial-inner')?.insertAdjacentHTML('beforeend',
+                    '<p style="color:var(--muted);font-size:12px;font-family:var(--font-mono)">⚠ stories.json failed to load — chart unavailable</p>');
+            }
+        });
+    }
 
     // Assign colors
     assignPlayerColors(DATA.players);
@@ -3966,11 +4014,9 @@ Promise.all([
     renderFeudsCompact();
     renderTacticalTable();
 
-    // Render STORIES-dependent interstitials
+    // Render STORIES-dependent interstitials (lazy — only when scrolled near)
     if (STORIES) {
-        [renderPopularityReality, renderYearVsScore, renderGenreBoxPlots, renderDecadeMachine].forEach(fn => {
-            try { fn(); } catch (e) { console.error(`${fn.name} failed:`, e); }
-        });
+        setupLazyInterstitials();
     }
 
     // Setup interactions
@@ -3994,18 +4040,34 @@ Promise.all([
             // Re-render final race chart
             renderFinalRaceChart();
 
-            // Re-render D3 visualizations in interstitials
-            const popContainer = document.querySelector('#interstitial-popularity .popularity-scatter-container');
-            if (popContainer) { popContainer.remove(); document.querySelector('#interstitial-popularity .outlier-list')?.remove(); renderPopularityReality(); }
+            // Re-render D3 visualizations in interstitials (only if already rendered)
+            const popSection = document.getElementById('interstitial-popularity');
+            if (popSection?.dataset.chartRendered) {
+                const popContainer = popSection.querySelector('.popularity-scatter-container');
+                if (popContainer) { popContainer.remove(); document.querySelector('#interstitial-popularity .outlier-list')?.remove(); renderPopularityReality(); }
+                popSection.querySelectorAll('.fade-in').forEach(el => el.classList.add('visible'));
+            }
 
-            const yearContainer = document.querySelector('#interstitial-year .insights-subsection');
-            if (yearContainer) { yearContainer.remove(); renderYearVsScore(); }
+            const yearSection = document.getElementById('interstitial-year');
+            if (yearSection?.dataset.chartRendered) {
+                const yearContainer = yearSection.querySelector('.insights-subsection');
+                if (yearContainer) { yearContainer.remove(); renderYearVsScore(); }
+                yearSection.querySelectorAll('.fade-in').forEach(el => el.classList.add('visible'));
+            }
 
-            const genreContainer = document.querySelector('#interstitial-genre .insights-subsection');
-            if (genreContainer) { genreContainer.remove(); renderGenreBoxPlots(); }
+            const genreSection = document.getElementById('interstitial-genre');
+            if (genreSection?.dataset.chartRendered) {
+                const genreContainer = genreSection.querySelector('.insights-subsection');
+                if (genreContainer) { genreContainer.remove(); renderGenreBoxPlots(); }
+                genreSection.querySelectorAll('.fade-in').forEach(el => el.classList.add('visible'));
+            }
 
-            const decadeContainer = document.querySelector('#interstitial-decade .decade-chart-container');
-            if (decadeContainer) { decadeContainer.remove(); document.querySelector('#interstitial-decade .decade-awards')?.remove(); renderDecadeMachine(); }
+            const decadeSection = document.getElementById('interstitial-decade');
+            if (decadeSection?.dataset.chartRendered) {
+                const decadeContainer = decadeSection.querySelector('.decade-chart-container');
+                if (decadeContainer) { decadeContainer.remove(); document.querySelector('#interstitial-decade .decade-awards')?.remove(); renderDecadeMachine(); }
+                decadeSection.querySelectorAll('.fade-in').forEach(el => el.classList.add('visible'));
+            }
         }, 300);
     });
 });
