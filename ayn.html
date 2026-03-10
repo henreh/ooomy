@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maybe All You Need Is the Friends You Made Along the Way</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500;600;800&family=Playfair+Display:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="blog.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js"></script>
+  <script>
+    !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group identify setPersonProperties setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags resetGroups onFeatureFlags addFeatureFlagsHandler onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey getNextSurveyStep".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+    posthog.init('phc_2q53cMFfcQtbUsJlwb84E9HNaBh0RhHUxlqVxU5QdUx', {
+        api_host: 'https://eu.i.posthog.com',
+        defaults: '2026-01-30'
+    })
+</script>
+  <style>
+    .abstract {
+      margin: var(--space-8) 0;
+      padding: var(--space-5) var(--space-6);
+      border-left: 4px solid var(--color-border-heavy);
+      background: var(--color-page-bg);
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      font-size: 17px;
+      color: var(--color-text-secondary);
+    }
+    .abstract p:last-child {
+      margin-bottom: 0;
+    }
+    .abstract__label {
+      font-family: var(--font-mono);
+      font-weight: 600;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--color-text-primary);
+      margin-bottom: var(--space-3);
+    }
+    .theorem {
+      margin: var(--space-6) 0;
+      padding: var(--space-5) var(--space-6);
+      background: var(--color-page-bg);
+      border-left: 3px solid var(--color-border-heavy);
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    }
+    .theorem__label {
+      font-family: var(--font-mono);
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: var(--space-2);
+    }
+    .theorem p {
+      margin-bottom: var(--space-3);
+    }
+    .theorem p:last-child {
+      margin-bottom: 0;
+    }
+    .proof {
+      margin: var(--space-6) 0;
+      padding: var(--space-5) var(--space-6);
+      background: var(--color-page-bg);
+      border-left: 3px solid var(--color-accent);
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    }
+    .proof__label {
+      font-family: var(--font-mono);
+      font-weight: 600;
+      font-size: 14px;
+      font-style: italic;
+      margin-bottom: var(--space-2);
+    }
+    .proof p {
+      margin-bottom: var(--space-3);
+    }
+    .proof p:last-child {
+      margin-bottom: 0;
+    }
+    .proof__tombstone {
+      display: block;
+      text-align: right;
+      font-size: 18px;
+      margin-top: var(--space-2);
+    }
+    .references {
+      margin-top: var(--space-12);
+      padding-top: var(--space-8);
+      border-top: var(--border-subtle);
+    }
+    .references__title {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-6);
+    }
+    .references ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    .references li {
+      font-size: 15px;
+      line-height: 1.5;
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-4);
+      padding-left: var(--space-6);
+      text-indent: calc(-1 * var(--space-6));
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <header class="site-header">
+      <div class="container">
+        <a href="#" class="site-header__logo">A blog by Henry Franks</a>
+        <nav>
+          <ul class="site-header__nav">
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <article class="article container">
+
+        <header class="article__header">
+          <h1 class="article__title">Maybe All You Need Is the Friends You Made Along the Way</h1>
+          <p class="article__lede">A meta-analysis of papers identifying all you need, none of which mentioned friendship.</p>
+          <div class="article__meta">
+            <span><a href="#">Dr. Henry Franks</a></span>
+            <span>March 3, 2025</span>
+            <span>~20 min read</span>
+          </div>
+        </header>
+
+        <div class="article__body">
+
+          <div class="abstract">
+            <p class="abstract__label">Abstract</p>
+            <p>Since 2017, the &ldquo;X Is All You Need&rdquo; title construction convention in machine learning has been all paper authors have needed to avoid expending precious mental energy introducing their contributions to the field. Indeed, over 300 such papers have been published between 2017 and 2025. The set of things claimed to be &ldquo;all you need&rdquo; is large enough to be self-evidently self-contradictory and yet is still growing. Among the things that are purportedly all you need: attention, patches, morphisms, Hopfield networks, a 23-megawatt data center, sex, propaganda, dreaming, procrastination, a dictator, and pretraining on the test set (the latter result somewhat undermining the gravitas of the form). We present an empirical and philosophical analysis of the phenomenon and conclude with recommendations (&ldquo;please stop&rdquo;). We further demonstrate, via an argument we concede proves its own futility, that the question &ldquo;what is all you need?&rdquo; is not merely unanswered but formally unanswerable. Naturally, we do not resolve this. We are, however, quite pleased with it.</p>
+          </div>
+
+          <!-- Section 1 -->
+          <h2>1. Introduction</h2>
+
+          <p>In 2017, <a href="#ref-vaswani2017">Vaswani et al. (2017)</a> published &ldquo;Attention Is All You Need&rdquo; introducing the transformer architecture. Their contribution proved genuinely transformative (a word we use in both the colloquial and the algebraic senses, the latter of which the authors would presumably prefer) and the paper has since been cited over 173,000 times, ranking it amongst the 10 most cited papers of the 21st century so far and sharing its infamy with historic milestones of scientific progress like cancer genomics and the Higgs boson, neither of which had the temerity to claim that a single mechanism was all you need.</p>
+
+          <p>The title proved arguably (but arguably not convincingly) more consequential than the architecture. It launched a naming convention that has since metastasized across the field with concerning vigour. As of early 2026, a curated repository (<a href="#ref-nishi_repo">Nishi, 2024</a>) tracking papers with &ldquo;all you need&rdquo; in their titles contains over 300 entries.</p>
+
+          <p>Academic paper titles are, at their best, one of the most rewarding literary forms available to scientists. In fewer than twenty words (for the reasonable authors among us) one must attempt conveying the domain, hinting at the result, distinguishing from prior work, and making the reader want to cancel their afternoon meetings. Bonus points are available for effective SEO and elegant wordplay. A great title is a miniature work of art.</p>
+
+          <p>This paper asks two questions. First, can we please stop using the all you need title template? And second, does advocating against the depressing futility and lack of imagination of the titular template while adopting the very convention we are critiquing undermine our fundamental thesis? We will not fully answer this question. We will however be very precise about the ways in which we fail.</p>
+
+          <!-- Section 2 -->
+          <h2>2. The title of the art</h2>
+
+          <p>Paper titles have been a source of creativity and elegant intellectual achievement for much of humanity&rsquo;s post-Renaissance trajectory<sup><a href="#fn1" id="ref1">1</a></sup>. Consider Einstein&rsquo;s understated masterpiece of special relativity &ldquo;On the Electrodynamics of Moving Bodies&rdquo; (<a href="#ref-einstein1905">Einstein, 1905</a>). Or Turing&rsquo;s world-record lede-burying sub-clause introduction of the Halting problem in &ldquo;On Computable Numbers, with an Application to the Entscheidungsproblem&rdquo; (<a href="#ref-turing1936">Turing, 1936</a>). Claude Shannon&rsquo;s foundation of information theory was merely entitled &ldquo;A Mathematical Theory of Communication&rdquo; (<a href="#ref-shannon1948">Shannon, 1948</a>)&mdash;the indefinite article &ldquo;A&rdquo; doing some heavy lifting permitting other such theories, and not even for a moment hinting that the theory therein described might be exhaustive with respect to one&rsquo;s information theoretical needs. &ldquo;Reflections on Trusting Trust&rdquo; (<a href="#ref-thompson1984">Thompson, 1984</a>); &ldquo;Go To Statement Considered Harmful&rdquo; (<a href="#ref-dijkstra1968">Dijkstra, 1968</a>). To the point, descriptive, a gold standard for science communication. &ldquo;Consequences of Erudite Vernacular Utilized Irrespective of Necessity: Problems with Using Long Words Needlessly&rdquo; (<a href="#ref-oppenheimer2006">Oppenheimer, 2006</a>), &ldquo;You Probably Think This Paper&rsquo;s About You: Narcissists&rsquo; Perceptions of Their Personality and Reputation&rdquo; (<a href="#ref-carlson2011">Carlson et al., 2011</a>), &ldquo;Carbon Monoxide: To Boldly Go Where NO Has Gone Before&rdquo; (<a href="#ref-ryter2004">Ryter et al., 2004</a>). Some titles intrigue, some provoke, some delight. All carry specific information about the work they describe, and they help the reader decide in mere seconds whether this paper is relevant to their interests or not.</p>
+
+          <p>The very best titles, in our opinion, engender the Ig Nobel philosophy: they make you laugh, and then they make you think. &ldquo;Object Personification in Autism: This Paper Will Be Very Sad If You Don&rsquo;t Read It&rdquo; (<a href="#ref-white2019">White &amp; Remington, 2019</a>), for example, or &ldquo;Will Any Crap We Put into Graphene Increase Its Electrocatalytic Effect?&rdquo; (<a href="#ref-wang2020">Wang et al., 2020</a>), or &ldquo;Fuck Nuance&rdquo; (<a href="#ref-healy2017">Healy, 2017</a>).</p>
+
+          <p>The medical domain is a rich source of creativity and comedic impulses needing an outlet, resulting in thousands of Shakespearean allusions and hundreds of Back to the Future allusions (<a href="#ref-goodman2005">Goodman, 2005</a>). (&ldquo;Head and Neck Injury Risks in Heavy Metal: Head Bangers Stuck Between Rock and a Hard Bass&rdquo; (<a href="#ref-patton2008">Patton &amp; McIntosh, 2008</a>) is particularly noteworthy). &ldquo;Fantastic Yeasts and Where to Find Them&rdquo; (<a href="#ref-vandyke2019">Van Dyke &amp; Wormley, 2019</a>), &ldquo;The Mouth, the Anus, and the Blastopore&mdash;Open Questions About Questionable Openings&rdquo; (<a href="#ref-hejnol2009">Hejnol &amp; Martindale, 2009</a>), &ldquo;Premature Speculation Concerning Pornography&rsquo;s Effects on Relationships&rdquo; (<a href="#ref-kohut2019">Kohut &amp; Campbell, 2019</a>), and many more&mdash;all papers that give you a sense of the topic at hand and the satisfaction of the scientists behind them.</p>
+
+          <p>Abuse of titular templates is not new to the &ldquo;all you need&rdquo; era. Computer science especially is littered with the carcasses of once-original phrases ridden into the ground by subsequent authors with less imagination and tighter deadlines. Dijkstra&rsquo;s &ldquo;Considered Harmful&rdquo; (<a href="#ref-dijkstra1968">Dijkstra, 1968</a>) is the ur-example. Wikipedia catalogues at least 65 papers using the template, and the true count (if one includes blog posts and manifestos) exceeds 4,700. &ldquo;Global Variable Considered Harmful&rdquo;, &ldquo;Csh Programming Considered Harmful&rdquo;, &ldquo;Ethnography Considered Harmful&rdquo;; indeed, a response to Dijkstra entitled &ldquo;&thinsp;&lsquo;GOTO Considered Harmful&rsquo; Considered Harmful&rdquo; (<a href="#ref-rubin1987">Rubin, 1987</a>) utilised the form well; but Meyer&rsquo;s &ldquo;&thinsp;&lsquo;Considered Harmful&rsquo; Essays Considered Harmful&rdquo; (<a href="#ref-meyer2002">Meyer, 2002</a>) certainly subsequently felt necessary and the spiritual ancestor of the present pontification.</p>
+
+          <p>The memetic &ldquo;Unreasonable Effectiveness of &hellip;,&rdquo; originating with Wigner&rsquo;s celebrated essay on mathematics and physics (<a href="#ref-wigner1960">Wigner, 1960</a>), represents another joy-terminator for the field, siring among others &ldquo;The Unreasonable Effectiveness of Recurrent Neural Networks&rdquo; (<a href="#ref-karpathy2015">Karpathy, 2015</a>), &ldquo;The Unreasonable Effectiveness of Easy Training Data for Hard Tasks&rdquo; (<a href="#ref-hase2024">Hase et al., 2024</a>), &ldquo;The Unreasonable Effectiveness of Pattern Matching&rdquo; (<a href="#ref-lupyan2026">Lupyan &amp; Aguera y Arcas, 2026</a>), and the utterly depressing &ldquo;Untidy Data: The Unreasonable Effectiveness of Tables&rdquo; (<a href="#ref-bartram2022">Bartram et al., 2022</a>).</p>
+
+          <p>The drive to attune titles to trends in lieu of communicating effectively leads to a plethora of dubious assertions. Attention itself is simultaneously all you need (<a href="#ref-vaswani2017">Vaswani et al., 2017</a>), not all you need (<a href="#ref-dong2021">Dong et al., 2021</a>), not all you need anymore (<a href="#ref-chen2023">Chen, 2023</a>), and the subject of at least three &ldquo;considered harmful&rdquo; critiques of self-attention mechanisms.</p>
+
+          <p>The &ldquo;all you need&rdquo; convention surpasses its predecessors in one crucial respect: the rate of proliferation. &ldquo;Considered harmful&rdquo; took 34 years to reach 65 papers. &ldquo;Unreasonable effectiveness&rdquo; has generated a few dozen in 65 years. &ldquo;All you need&rdquo; has produced over 300 papers in eight years, an alarming rate of infection. Unlike its predecessors, which at least convey a specific rhetorical stance (disapproval; wonderment), &ldquo;all you need&rdquo; conveys nothing but undifferentiated gentle positivity.</p>
+
+          <p>The &ldquo;all you need&rdquo; trend specifically undermines the properties of good titles: it preserves noise while discarding signal. The $X$ is the only variable, while everything else is boilerplate. &ldquo;Patches Are All You Need&rdquo; (<a href="#ref-trockman2022">Trockman &amp; Kolter, 2022</a>), &ldquo;Morphism Is All You Need&rdquo; (<a href="#ref-sheshmani2022">Sheshmani &amp; You, 2022</a>), &ldquo;Procrastination Is All You Need&rdquo; (<a href="#ref-liguori2024">Liguori, 2024</a>)&mdash;identical except for a single noun, telling the reader nothing but a vague pointing at the topic in hand. The approach? The result? The domain? The scale? The users of this titular approach do not care for these apparent irrelevancies of the scientific oeuvre.</p>
+
+          <p>Academic paper titles are ultimately one of the few remaining spaces in scientific discourse where a human is permitted to be clever. Abstracts are functional, methodologies are constrained (and unrewarding at best). The title is the one place where one can wink knowingly at the reader. Collapsing this space into a LaTeX equivalent of a genre tag on IMDB is a grave loss to both the culture of science and the ability to use more than 4/5ths of a paper title to search for it. It is this loss that motivates the present paper.</p>
+
+          <!-- Section 3 -->
+          <h2>3. A survey of alleged sufficiency</h2>
+
+          <p>We analysed a dataset of 307 papers containing &ldquo;all you need&rdquo; in their titles, published on arXiv between November 2015 and January 2026. There was 1 paper in 2017 (the original sin), 5 in 2018, 16 in 2019, 26 in 2020, 45 in 2021, 55 in 2022, 80 in 2023, and over 90 in 2024.</p>
+
+          <p>The dataset makes evident the extent of the issue. &ldquo;Attention Is All You Need&rdquo; (<a href="#ref-vaswani2017">Vaswani et al., 2017</a>) was the original; given that the transformer also requires feedforward layers, residual connections, layer normalisation, positional encodings, and several petadollars of cloud compute it was somewhat of a bold claim already. &ldquo;CNN Is All You Need&rdquo; (<a href="#ref-chen2017cnn">Chen &amp; Wu, 2017</a>) appeared the same year, entailing that both attention and convolution are individually all you need, meaning at least one of them is not. &ldquo;Attention Is Not All You Need&rdquo; (<a href="#ref-dong2021">Dong et al., 2021</a>), &ldquo;Not All Attention Is All You Need&rdquo; (<a href="#ref-wu2021">Wu et al., 2021</a>), and &ldquo;Attention Is Not All You Need Anymore&rdquo; (<a href="#ref-chen2023">Chen, 2023</a>) followed several years later forming a dialectical trilogy we definitively did not need. &ldquo;Hopfield Networks Is All You Need&rdquo; (<a href="#ref-ramsauer2020">Ramsauer et al., 2020</a>), &ldquo;All You Need Is Sex for Diversity&rdquo; (<a href="#ref-simoes2023">Sim&otilde;es et al., 2023</a>), &ldquo;A Random Dictator Is All You Need&rdquo; (<a href="#ref-arieli2025">Arieli et al., 2025</a>), &ldquo;Propaganda Is All You Need&rdquo; (<a href="#ref-kronlund2024">Kronlund-Drouault, 2024</a>), and &ldquo;Procrastination Is All You Need&rdquo; (<a href="#ref-liguori2024">Liguori, 2024</a>) pushed the format unnecessarily to its limits.</p>
+
+          <p>A serendipitous feature of the corpus is that it provides rigorous empirical bounds on the cost of all you need. At the lower extreme, <a href="#ref-picard2021">Picard (2021)</a> claims that <code>Torch.manual_seed(3407)</code> is all you need. At the upper extreme, <a href="#ref-albanie2022">Albanie et al. (2022)</a> claim that a 23-megawatt data centre is all you need. These two papers, taken together, define what we presently term the Sufficiency Cost Spectrum (SCS).</p>
+
+          <p>For the lower bound&mdash;the cost of running the Torch library <code>manual_seed(3407)</code> function&mdash;we calculate a cost of roughly 3.7 nanodollars: the integer 3407 requires $\lceil\log_2(3407)\rceil = 12$ bits to store. At current DRAM commodity pricing of approximately <span class="currency">US$2.50</span> per gigabyte, 12 bits costs roughly $3.7 \times 10^{-9}$ dollars. The energy required to write the 12 bit representation of 3407 to DRAM, using the Landauer limit (<a href="#ref-landauer1961">Landauer, 1961</a>) as a lower bound on the thermodynamic cost of information storage ($kT \ln 2$ per bit at room temperature), is approximately $3.5 \times 10^{-21}$ joules, or roughly 0.35 zeptojoules&mdash;less energy than is released by a single molecule of ATP during hydrolysis, meaning that the lower bound of energy expenditure to attain all you need is within reach of a bacterium, provided you can get it to run PyTorch. At the other end of the scale, a 23&nbsp;MW data center operating continuously consumes approximately 201,480 megawatt-hours per year. Using the US industrial average electricity rate of approximately <span class="currency">US$0.075/kWh</span>, the annual electricity cost alone is roughly <span class="currency">US$15.1 million</span>. Adding cooling infrastructure (typically 30&ndash;40% overhead via PUE), hardware amortization, real estate, networking, and so on, a conservative estimate of total annual operating cost is <span class="currency">US$60&ndash;80 million</span>. At the middle point of that estimate, that translates to roughly <span class="currency">US$133/minute</span>&mdash;or, for the average reader, a cost of <span class="currency">$400</span> in hypothetical all-you-need datacenter time to read this paragraph, a sum we hope you feel was well-invested.</p>
+
+          <p>The upper bound for the cost of all you need therefore exceeds the lower bound by around sixteen orders of magnitude&mdash;more precisely, the estimate for the upper bound of the cost of all you need is roughly nineteen quadrillion times more than the estimate for the lower bound. For comparison, the ratio between the gross world product and the price of a single mass-market paperback is approximately $10^{14}$: the Sufficiency Cost Spectrum comfortably spans, by two orders of magnitude, the entire range of human economic activity. A rational agent seeking &ldquo;all it needs&rdquo; is therefore faced with a decision space spanning 16 orders of magnitude in cost, with no guidance from the corpus as to where on this spectrum the true sufficiency lies. We are unaware of search algorithms that would be all you need to resolve this problem.</p>
+
+          <!-- Section 4 -->
+          <h2>4. Taxonomies Are All You Need</h2>
+
+          <p>Having examined the empirical manifestation of this phenomenon, we now turn our attention to offending theorists as well. We are confronted with a methodological crisis: how does one organise a corpus of several hundred mutually contradictory claims of universal sufficiency? Before we can formally model this insufficiency in subsequent sections, we must first consider the mechanism by which machine learning researchers sort their world.</p>
+
+          <p>We contend&mdash;and will presently argue, at some length and with admittedly questionable rigour&mdash;that the act of taxonomisation is the irreducible base operation of all intellectual inquiry, and that therefore taxonomies are, in a sense we will make precise, actually all you need.</p>
+
+          <p>Consider any domain of knowledge $D$. To say anything about $D$, one must first distinguish its objects from one another: this is classification. To say anything useful, one must group those objects by shared properties: this is categorization. To say anything publishable, one must arrange those groups into a hierarchy with labels: this is taxonomy. Every act of scientific inquiry&mdash;from Linnaeus&rsquo;s binomial nomenclature, to the Standard Model&rsquo;s particle zoo, to the DSM-5&rsquo;s catalogue of disorders&mdash;is, in its basest, purist form, an exercise in sorting things into boxes and then arguing about the boxes. Physics is a taxonomy of forces. Chemistry is a taxonomy of bonds. Economics a taxonomy of failure.</p>
+
+          <p>More formally: let $T\colon \mathcal{T} \to \mathcal{T}$ be the operator that, given any body of knowledge, produces a taxonomy of that knowledge. We claim $T$ is idempotent&mdash;a taxonomy of taxonomies is still a taxonomy&mdash;and moreover that $T$ is a projection operator onto the subspace of communicable understanding. That which cannot be taxonomized cannot be discussed<sup><a href="#fn2" id="ref2">2</a></sup>; that which can be discussed has already been implicitly taxonomized; therefore $T$ is both necessary and sufficient for discourse. Taxonomies are all you need. With this established, we can now apply the idempotent operator $T$ to the field of machine learning itself, constructing the formal categories of tasks and architectures required to prove that the authors of the aforementioned 307 papers are, categorically speaking, wrong.</p>
+
+          <!-- Section 5 -->
+          <h2>5. A Category-Theoretic Formalization of Insufficiency</h2>
+
+          <p>Now let us turn to the second pillar of our thesis.</p>
+
+          <div class="theorem">
+            <p class="theorem__label">Definition 1.</p>
+            <p>Let $\mathcal{P}$ denote the category whose objects are ML tasks (image classification, language modeling, protein folding, etc.) and whose morphisms are task reductions: a morphism $f\colon A \to B$ exists iff a solution to $B$ yields a solution to $A$ via some computable transformation. Composition is given by chaining reductions; identity morphisms are trivial self-reductions. That $\mathcal{P}$ satisfies the category axioms is left as an exercise the reader will not perform.</p>
+          </div>
+
+          <div class="theorem">
+            <p class="theorem__label">Definition 2.</p>
+            <p>Let $\mathcal{S}$ denote the category whose objects are ML techniques, architectures, and mechanisms, and whose morphisms are subsumption relations: $g\colon X \to Y$ exists iff $Y$ reproduces the functionality of $X$, as demonstrated by ablation study. Associativity of subsumption is immediate; reflexivity provides identities. We note that $\mathcal{S}$ is not a preorder, as two techniques may subsume each other without being identical. This phenomenon will feel familiar to anyone who has attended a NeurIPS poster session.</p>
+          </div>
+
+          <div class="theorem">
+            <p class="theorem__label">Proposition 3.</p>
+            <p>Each &ldquo;X Is All You Need&rdquo; paper implicitly asserts the existence of a functor $\mathcal{F}\colon \mathcal{P} \to \mathcal{S}$ such that $\mathcal{F}(P) = X$ for all objects $P \in \mathcal{P}$. This is a constant functor. The additional claim that $X$ is &ldquo;all&rdquo; you need&mdash;that $X$ is uniquely sufficient&mdash;asserts that $X$ is a terminal object in $\mathcal{S}$: an object $\top$ such that for every $Y \in \mathcal{S}$ there exists a unique morphism $Y \to \top$.</p>
+          </div>
+
+          <div class="theorem" id="corollary-4">
+            <p class="theorem__label">Corollary 4.</p>
+            <p>Terminal objects, where they exist, are unique up to unique isomorphism. The corpus asserts the existence of 307 distinct candidates for $\top$ in $\mathcal{S}$. Since $|\top/{\cong}| \leq 1$ by definition and the candidates are pairwise non-isomorphic (attention $\ncong$ procrastination; we trust this requires no proof), we have a contradiction.</p>
+          </div>
+
+          <div class="theorem">
+            <p class="theorem__label">Proposition 5.</p>
+            <p>The constant functor $\mathcal{F}$ does not preserve limits.</p>
+          </div>
+
+          <div class="proof">
+            <p class="proof__label">Proof.</p>
+            <p>Consider objects $A$ = &ldquo;image segmentation&rdquo; and $B$ = &ldquo;text generation&rdquo; in $\mathcal{P}$, with morphisms $A \to C$ and $B \to C$ for some common downstream task $C$ (e.g. &ldquo;multimodal understanding&rdquo;). The pullback $A \times_C B$ exists in $\mathcal{P}$; its construction is standard and we omit it here for reasons of space and because we have not actually constructed it. Under $\mathcal{F}$ we obtain $\mathcal{F}(A) = \mathcal{F}(B) = \mathcal{F}(C) = \mathcal{F}(A \times_C B) = X$, collapsing the pullback square to the identity span $X \leftarrow X \to X$, which is the trivial pullback of $X \to X \leftarrow X$. All structural information has been annihilated.</p>
+            <span class="proof__tombstone">&#8718;</span>
+          </div>
+
+          <div class="theorem">
+            <p class="theorem__label">Remark 6.</p>
+            <p>We propose instead that the honest mapping from $\mathcal{P}$ to $\mathcal{S}$ is not a constant functor but a Grothendieck fibration: for each problem $P$, the fibre $\mathcal{F}^{-1}(P)$ is a nontrivial groupoid of partial solutions, none of which is terminal, all of which require composition via colimits in $\mathcal{S}$. This is less catchy. It is, however, technically correct. This, as has been established in the literature (<a href="#ref-futurama2001">Cohen &amp; Dietter, 2001</a>), is the best kind of correct.</p>
+          </div>
+
+          <!-- Section 6 -->
+          <h2>6. Does the set of things that are all you need contain itself?</h2>
+
+          <p>We now extend the formalism of the previous section.</p>
+
+          <div class="theorem">
+            <p class="theorem__label">Definition 7.</p>
+            <p>Let $\mathcal{T} \subseteq \mathcal{S}$ be the full subcategory of alleged terminal objects&mdash;that is, the subcategory whose objects are exactly those $X \in \mathrm{Ob}(\mathcal{S})$ for which some paper asserts $\mathcal{F}(P) = X$ for all $P \in \mathcal{P}$. By the survey of Section 3, $|\mathrm{Ob}(\mathcal{T})| \geq 307$.</p>
+          </div>
+
+          <p>The present paper contributes a new object to $\mathcal{S}$. Our thesis&mdash;that no single thing is all you need&mdash;is itself a proposed solution to the meta-problem &ldquo;what should ML researchers believe about sufficiency?&rdquo; Call this object $\mathcal{N} \in \mathrm{Ob}(\mathcal{S})$, the insufficiency claim. The question is whether $\mathcal{N} \in \mathrm{Ob}(\mathcal{T})$.</p>
+
+          <div class="theorem">
+            <p class="theorem__label">Proposition 8.</p>
+            <p>The characteristic function $\chi_{\mathcal{T}}(\mathcal{N})$ is undefined.</p>
+          </div>
+
+          <div class="proof">
+            <p class="proof__label">Proof.</p>
+            <p>Suppose $\mathcal{N} \in \mathrm{Ob}(\mathcal{T})$. Then this paper asserts a terminal object in $\mathcal{S}$: insufficiency is all you need. But Corollary 4 established that $\mathcal{S}$ cannot support 308 terminal objects any more than it could support 307. Worse: $\mathcal{N}$&rsquo;s defining property is the non-existence of terminal objects in $\mathcal{S}$, so its membership in $\mathcal{T}$ entails its own negation. Contradiction.</p>
+            <p>Suppose instead $\mathcal{N} \notin \mathrm{Ob}(\mathcal{T})$. Then this paper&rsquo;s conclusion is not sufficient&mdash;the paper has failed. But if the paper has failed, then the 307 prior sufficiency claims stand unchallenged, and since they are mutually contradictory (Corollary 4 again), no consistent resolution exists, which is precisely what this paper claimed, which vindicates $\mathcal{N}$, which places it back in $\mathcal{T}$. Contradiction.</p>
+            <span class="proof__tombstone">&#8718;</span>
+          </div>
+
+          <p>The structure here is classical. $\mathcal{N}$ is the Russell object of $\mathcal{T}$: the entity whose membership in the subcategory is determined by a predicate that references its own negation. In set-theoretic terms, we are asking whether the set of all sufficient things contains &ldquo;the knowledge that nothing is sufficient,&rdquo; and the answer oscillates. In categorical terms, we are looking for a fixed point of the endofunctor $\lnot\colon \mathcal{T} \to \mathcal{T}$ that maps each sufficiency claim to its own negation. No such fixed point exists. The paper is not an object of $\mathcal{S}$ at all; it is a morphism from the corpus to its own contradiction, trapped in the comma category $(\mathcal{T} \downarrow \mathcal{T})$ with no way to project down to either factor.</p>
+
+          <p>One could resolve this via a Tarski-style hierarchy of meta-sufficiency claims, stratifying $\mathcal{S}$ into levels $\mathcal{S}_0, \mathcal{S}_1, \mathcal{S}_2, \ldots$ where each level may only make claims about objects in the level below. We will not do this, partly because it would add twelve pages, and partly because it might work and we&rsquo;ve spent too long writing this already.</p>
+
+          <!-- Section 7 -->
+          <h2>7. The Prestige</h2>
+
+          <p>Recall our initial foundation, in which we established with&mdash;we are sure readers will agree&mdash;admirable rigour that, in fact, it is taxonomies that are all you need. Every act of inquiry reduces to classification, categorization, and hierarchical arrangement. To understand anything is to taxonomise it. To claim $X$ is &ldquo;all you need&rdquo; is to claim that $X$ exhaustively covers its domain; that the taxonomy of relevant tools has exactly one entry.</p>
+
+          <p>Recall further that the Russell object $\mathcal{N}$ oscillates: this paper&rsquo;s own insufficiency claim can neither belong to the subcategory $\mathcal{T}$ of alleged terminal objects nor be excluded from it without contradiction. The taxonomy of sufficient methods is therefore impredicative, containing an object whose membership depends on the answer to the very question the taxonomy was constructed to settle.</p>
+
+          <p>Combine these recollections: if (a) all inquiry is taxonomy, and (b) the class of sufficiency claims resists consistent taxonomy, then the act of identifying what is needed is formally impossible by the very act of attempting it. The taxonomy cannot be completed, for adding new papers merely adds new contradictions, and therefore the inquiry itself cannot be completed. Subsequently the project of establishing what &ldquo;all you need&rdquo; is cannot be completed. Not merely that no single thing is all you need, but rather that the question &ldquo;what is all you need?&rdquo; is undecidable.</p>
+
+          <p>Consider the claim as a decision problem: given an arbitrary ML technique $X$ and an arbitrary task $T$, determine whether $X$ is all you need for $T$. We argue this is at least as hard as the halting problem, by the following informal reduction. To verify that $X$ is &ldquo;all&rdquo; you need, you must verify that no other technique $Y$ could supplement or replace $X$&mdash;that is, you must enumerate all possible alternatives and demonstrate their redundancy. But the space of possible techniques is recursively enumerable and unbounded (one can always compose, modify, or augment existing methods to produce new ones), and determining whether an arbitrary program $P$ (here, an ML pipeline using technique $Y$) produces output equivalent to another program $Q$ (here, the pipeline using only $X$) on all inputs is reducible to the halting problem by Rice&rsquo;s theorem (<a href="#ref-rice1953">Rice, 1953</a>)<sup><a href="#fn3" id="ref3">3</a></sup>. Specifically, &ldquo;$X$ is all you need for $T$&rdquo; is a claim about the input&ndash;output behaviour of every possible pipeline for $T$: namely, that none improves on $X$ alone. This is a non-trivial semantic property of programs in the sense required by Rice&rsquo;s theorem: it is neither vacuously true nor vacuously false (some techniques genuinely are sufficient for some tasks; most are not), and it cannot be determined by syntactic inspection of the pipeline, only by evaluating its behaviour. Therefore it follows directly that determining whether $X$ is all you need is undecidable.</p>
+
+          <p>G&ouml;del (<a href="#ref-godel1931">G&ouml;del, 1931</a>), we believe, would similarly abhor the &ldquo;all you need&rdquo; trend. Suppose a sufficiently expressive formal system $F$ could enumerate all true &ldquo;all you need&rdquo; statements. By G&ouml;del&rsquo;s first incompleteness theorem, if $F$ is consistent, it is incomplete: there exist true sufficiency claims that $F$ cannot prove. If $F$ is complete, it is inconsistent: it proves contradictory sufficiency claims, which feels like a perfectly valid description of arXiv but not a sound way to communicate scientific ideas.</p>
+
+          <p>We hope that the combined force of these results demonstrates the disdain with which we, as a community, should treat such bold, unfounded, and unimaginative claims as embodied by these papers. Every &ldquo;all you need&rdquo; paper is not merely empirically dubious but logically ineradicable from the category of unverifiable claims. No experiment can confirm them, because confirmation would require exhaustive enumeration of an unbounded alternative space. No proof can establish them, because any formal system powerful enough to express them is too powerful to be both consistent and complete. The entire oeuvre of three hundred and seven papers, and the combined human effort, endeavour, reviewer time, and conference badges behind them, are collectively wasted by this choice of title format.</p>
+
+          <p>We refrain from explicitly recommending the field adopt more modest titles. This, of course, would itself be a sufficiency claim (&ldquo;modesty is all you need&rdquo;), which we have just shown to be unverifiable. Rational readers are left with no choice but to draw no conclusions or insights from the present paper, and treat it with the reverence an entity entirely devoid of information content must surely deserve.</p>
+
+          <!-- Section 8 -->
+          <h2>8. Conclusion</h2>
+
+          <p>Please can we stop all-you-needing now. I hate it.</p>
+
+        </div>
+
+        <!-- Footnotes -->
+        <footer class="footnotes">
+          <p class="footnotes__title">Footnotes</p>
+          <ol>
+            <li id="fn1">It may be true before then as well, but the author is not sufficiently well-read to make any claims of such. <a href="#ref1">&hookleftarrow;</a></li>
+            <li id="fn2">Naysayers, and several LLMs, have objected to this claim on the basis that poetry, mystical experience, the smell of rain, and suchlike concepts resist taxonomy. This objection is well-taken but ultimately reinforces the point: the moment one lists counter examples, one has taxonomised them (things resistant to taxonomy). The moment one refuses to list them, one has ceased to discuss them, which is precisely the claim. <a href="#ref2">&hookleftarrow;</a></li>
+            <li id="fn3">Paper reviewers and other pedantic lower life forms might object here that authors do not actually intend to claim true, universal, Turing-complete sufficiency across all possible inputs; that they are merely claiming that &ldquo;technique $X$ achieves a higher F1 score than technique $Y$ on a specific contrived benchmark we previously introduced&rdquo; or somesuch similar thesis. While we concede that this formulation is entirely decidable it would also render authors using the titular sufficiency construction what we colloquially label &ldquo;liars&rdquo;. <a href="#ref3">&hookleftarrow;</a></li>
+          </ol>
+        </footer>
+
+        <!-- References -->
+        <section class="references">
+          <p class="references__title">References</p>
+          <ul>
+            <li id="ref-albanie2022">Albanie, S., Sherston, J., &amp; Sherston, T. (2022). A 23 MW Data Centre Is All You Need. <em>SIGBOVIK</em>.</li>
+            <li id="ref-arieli2025">Arieli, I., Babichenko, Y., &amp; Shmaya, E. (2025). A Random Dictator Is All You Need. <em>American Economic Journal: Microeconomics</em>.</li>
+            <li id="ref-bartram2022">Bartram, L., Patra, A., &amp; Stone, M. C. (2022). Untidy Data: The Unreasonable Effectiveness of Tables. <em>IEEE Transactions on Visualization and Computer Graphics</em>, 28(1), 686&ndash;696.</li>
+            <li id="ref-carlson2011">Carlson, E. N., Vazire, S., &amp; Oltmanns, T. F. (2011). You Probably Think This Paper&rsquo;s About You: Narcissists&rsquo; Perceptions of Their Personality and Reputation. <em>Journal of Personality and Social Psychology</em>, 101(1), 185&ndash;201.</li>
+            <li id="ref-chen2017cnn">Chen, Q. &amp; Wu, R. (2017). CNN Is All You Need. <em>arXiv preprint arXiv:1712.09662</em>.</li>
+            <li id="ref-chen2023">Chen, Z. (2023). Attention Is Not All You Need Anymore. <em>arXiv preprint arXiv:2308.07661</em>.</li>
+            <li id="ref-futurama2001">Cohen, D. X. &amp; Dietter, C. (2001). How Hermes Requisitioned His Groove Back. <em>Futurama</em>, Season 2, Episode 14.</li>
+            <li id="ref-dijkstra1968">Dijkstra, E. W. (1968). Go To Statement Considered Harmful. <em>Communications of the ACM</em>, 11(3), 147&ndash;148.</li>
+            <li id="ref-dong2021">Dong, Y., Cordonnier, J.-B., &amp; Loukas, A. (2021). Attention Is Not All You Need: Pure Attention Loses Rank Doubly Exponentially with Depth. <em>Proceedings of the 38th International Conference on Machine Learning</em>.</li>
+            <li id="ref-einstein1905">Einstein, A. (1905). On the Electrodynamics of Moving Bodies. <em>Annalen der Physik</em>, 322(10), 891&ndash;921.</li>
+            <li id="ref-godel1931">G&ouml;del, K. (1931). &Uuml;ber formal unentscheidbare S&auml;tze der Principia Mathematica und verwandter Systeme I. <em>Monatshefte f&uuml;r Mathematik und Physik</em>, 38, 173&ndash;198.</li>
+            <li id="ref-goodman2005">Goodman, N. W. (2005). From Shakespeare to Star Trek and Beyond: A Medline Search for Literary and Other Allusions in Biomedical Titles. <em>BMJ</em>, 331(7531), 1540&ndash;1542.</li>
+            <li id="ref-hase2024">Hase, P., Bansal, M., Clark, P., &amp; Wiegreffe, S. (2024). The Unreasonable Effectiveness of Easy Training Data for Hard Tasks. <em>Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics</em>.</li>
+            <li id="ref-healy2017">Healy, K. (2017). Fuck Nuance. <em>Sociological Theory</em>, 35(2), 118&ndash;127.</li>
+            <li id="ref-hejnol2009">Hejnol, A. &amp; Martindale, M. Q. (2009). The Mouth, the Anus, and the Blastopore&mdash;Open Questions About Questionable Openings. In <em>Animal Evolution: Genomes, Fossils, and Trees</em>. Oxford University Press.</li>
+            <li id="ref-karpathy2015">Karpathy, A. (2015). The Unreasonable Effectiveness of Recurrent Neural Networks. Blog post.</li>
+            <li id="ref-kohut2019">Kohut, T. &amp; Campbell, L. (2019). Premature Speculation Concerning Pornography&rsquo;s Effects on Relationships. <em>Archives of Sexual Behavior</em>, 48(4), 1037&ndash;1045.</li>
+            <li id="ref-kronlund2024">Kronlund-Drouault, S. (2024). Propaganda Is All You Need. <em>arXiv preprint arXiv:2407.15843</em>.</li>
+            <li id="ref-landauer1961">Landauer, R. (1961). Irreversibility and Heat Generation in the Computing Process. <em>IBM Journal of Research and Development</em>, 5(3), 183&ndash;191.</li>
+            <li id="ref-liguori2024">Liguori, M. (2024). Procrastination Is All You Need: Exponential Smoothing for Sequential Recommendation. <em>arXiv preprint arXiv:2410.00154</em>.</li>
+            <li id="ref-lupyan2026">Lupyan, G. &amp; Aguera y Arcas, B. (2026). The Unreasonable Effectiveness of Pattern Matching. <em>arXiv preprint arXiv:2502.08863</em>.</li>
+            <li id="ref-meyer2002">Meyer, E. (2002). &ldquo;Considered Harmful&rdquo; Essays Considered Harmful.</li>
+            <li id="ref-nishi_repo">Nishi, K. (2024). Awesome &ldquo;All You Need&rdquo; Papers. GitHub repository.</li>
+            <li id="ref-oppenheimer2006">Oppenheimer, D. M. (2006). Consequences of Erudite Vernacular Utilized Irrespective of Necessity: Problems with Using Long Words Needlessly. <em>Applied Cognitive Psychology</em>, 20(2), 139&ndash;156.</li>
+            <li id="ref-patton2008">Patton, D. &amp; McIntosh, A. (2008). Head and Neck Injury Risks in Heavy Metal: Head Bangers Stuck Between Rock and a Hard Bass. <em>BMJ</em>, 337, a2825.</li>
+            <li id="ref-picard2021">Picard, D. (2021). Torch.manual_seed(3407) Is All You Need: On the Influence of Random Seeds in Deep Learning Architectures for Computer Vision. <em>arXiv preprint arXiv:2109.08203</em>.</li>
+            <li id="ref-ramsauer2020">Ramsauer, H. et al. (2020). Hopfield Networks Is All You Need. <em>arXiv preprint arXiv:2008.02217</em>.</li>
+            <li id="ref-rice1953">Rice, H. G. (1953). Classes of Recursively Enumerable Sets and Their Decision Problems. <em>Transactions of the American Mathematical Society</em>, 74(2), 358&ndash;366.</li>
+            <li id="ref-rubin1987">Rubin, F. (1987). &ldquo;GOTO Considered Harmful&rdquo; Considered Harmful. <em>Communications of the ACM</em>, 30(3), 195&ndash;196.</li>
+            <li id="ref-ryter2004">Ryter, S. W., Morse, D., Bhatt, R. K., &amp; Otterbein, L. E. (2004). Carbon Monoxide: To Boldly Go Where NO Has Gone Before. <em>Science&rsquo;s STKE</em>, 2004(230), re6.</li>
+            <li id="ref-shannon1948">Shannon, C. E. (1948). A Mathematical Theory of Communication. <em>The Bell System Technical Journal</em>, 27(3), 379&ndash;423.</li>
+            <li id="ref-sheshmani2022">Sheshmani, A. &amp; You, Y.-Z. (2022). Morphism Is All You Need: A Category-Theoretic Framework for Machine Learning. <em>Machine Learning: Science and Technology</em>, 3(4), 045009.</li>
+            <li id="ref-simoes2023">Sim&otilde;es, L. F., Dahlke, C., &amp; Thomason, J. (2023). All You Need Is Sex for Diversity. <em>Proceedings of EuroGP 2023</em>.</li>
+            <li id="ref-thompson1984">Thompson, K. (1984). Reflections on Trusting Trust. <em>Communications of the ACM</em>, 27(8), 761&ndash;763.</li>
+            <li id="ref-trockman2022">Trockman, A. &amp; Kolter, J. Z. (2022). Patches Are All You Need? <em>arXiv preprint arXiv:2201.09792</em>.</li>
+            <li id="ref-turing1936">Turing, A. M. (1936). On Computable Numbers, with an Application to the Entscheidungsproblem. <em>Proceedings of the London Mathematical Society</em>, s2-42(1), 230&ndash;265.</li>
+            <li id="ref-vandyke2019">Van Dyke, M. C. C. &amp; Wormley, Jr., F. L. (2019). Fantastic Yeasts and Where to Find Them: The Hidden Diversity of Dimorphic Fungal Pathogens. <em>Current Opinion in Microbiology</em>, 52, 55&ndash;63.</li>
+            <li id="ref-vaswani2017">Vaswani, A. et al. (2017). Attention Is All You Need. <em>Advances in Neural Information Processing Systems</em>, 30.</li>
+            <li id="ref-wang2020">Wang, L., Sofer, Z., &amp; Pumera, M. (2020). Will Any Crap We Put into Graphene Increase Its Electrocatalytic Effect? <em>ACS Nano</em>, 14(1), 21&ndash;25.</li>
+            <li id="ref-white2019">White, R. C. &amp; Remington, A. (2019). Object Personification in Autism: This Paper Will Be Very Sad If You Don&rsquo;t Read It. <em>Autism</em>, 23(4), 1042&ndash;1045.</li>
+            <li id="ref-wigner1960">Wigner, E. P. (1960). The Unreasonable Effectiveness of Mathematics in the Natural Sciences. <em>Communications on Pure and Applied Mathematics</em>, 13(1), 1&ndash;14.</li>
+            <li id="ref-wu2021">Wu, S., Li, X., &amp; Wang, S. (2021). Not All Attention Is All You Need. <em>arXiv preprint arXiv:2104.04692</em>.</li>
+          </ul>
+        </section>
+
+      </article>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <span class="site-footer__text">&copy; 2025 Henry Franks. All rights reserved.</span>
+        <ul class="site-footer__links">
+          <li><a href="#">GitHub</a></li>
+          <li><a href="#">Twitter</a></li>
+          <li><a href="#">RSS</a></li>
+        </ul>
+      </div>
+    </footer>
+
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false}
+        ],
+        ignoredClasses: ["currency"],
+        throwOnError: false
+      });
+    });
+  </script>
+</body>
+</html>
